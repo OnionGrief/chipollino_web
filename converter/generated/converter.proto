@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package helloworld;
+
+// Сервис приветствия.
+service Greeter {
+  // Получает приветственное сообщение.
+  rpc getString (StringRequest) returns (StringResponse);
+}
+
+// Запрос для getString.
+message StringRequest {
+    string name = 1;
+}
+
+// Ответ для getString.
+message StringResponse {
+  string text = 1;
+}

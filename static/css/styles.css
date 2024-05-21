@@ -1,0 +1,13 @@
+.large_text{
+    font-size: x-large;
+}
+
+#input-right-panel {
+    width: 30%; 
+    display: flex; 
+    flex-direction: column;
+}
+
+#input-right-panel select {
+    margin: 30px 30px 30px 30px;
+}

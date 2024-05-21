@@ -1,0 +1,47 @@
+summary {
+    font-size: x-large;
+}
+
+#automata_container {
+    display: grid;
+    grid-template-columns: 1fr 4fr 10fr;
+    height: 300px;
+    margin: 20px;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+    /*border-radius: 5%;
+    border: 1px #f5f5f5; */
+}
+
+#automata_container div {
+    padding: 10px;
+}
+
+#automata_list {
+    background-color: #f5f5f5;
+    overflow: auto;
+}
+
+#automata_list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#automata_list li {
+    background-color: #e6e6e6;
+    margin: 5px 0px 5px 0px;
+    border-radius: 5%;
+    font-size: large;
+}
+
+#automaton_txt {
+    background-color: #e6e6e6;
+    overflow: auto;
+}
+
+#automaton_txt_header {
+    background-color: #eeeeee;
+    display: flex;
+    justify-content: space-around;
+}
+  

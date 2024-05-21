@@ -6,4 +6,17 @@
     <form action="/path/to/view/" method="post">
         <input type="submit" name="button1" value="Кнопка 1" />
     </form>
+    <button onclick="myButtonClick()">Нажмите меня</button>
+    <p id="result"></p>
+
+    <script>
+        function myButtonClick() {
+              fetch('/getregex/')
+              .then(response => response.text())
+              .then(data => {
+                document.getElementById('result').innerHTML = data;
+                });
+            }
+</script>
+
 {% endblock %}

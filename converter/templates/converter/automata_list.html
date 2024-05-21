@@ -1,0 +1,32 @@
+{% load static %}
+<div id="automata_container">
+    <div id="automata_list">
+      <ul>
+        <li>A1</li>
+        <li>M1</li>
+        <li>A2</li>
+      </ul>
+    </div>
+  
+    <div id="automaton_txt">
+      <div id="automaton_txt_header">
+        <button>Save</button>
+        <div style="padding: 0;">
+        format:
+        <select>
+          <option value="dsl">DSL</option>
+          <option value="dot">dot</option>
+        </select>
+        </div>
+      </div>
+      
+      <p>Текст</p>
+    </div>
+  
+    <div id="automaton_image">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <image xlink:href="{% static 'example.svg' %}" width="100%" height="100%"/>
+      </svg>
+    </div>
+  </div>
+  

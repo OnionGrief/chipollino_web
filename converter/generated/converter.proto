@@ -1,19 +1,23 @@
 syntax = "proto3";
 
-package helloworld;
+package converter;
 
-// Сервис приветствия.
-service Greeter {
-  // Получает приветственное сообщение.
+service Converter {
   rpc getString (StringRequest) returns (StringResponse);
+  rpc getRegex (RegexRequest) returns (RegexResponse);
 }
 
-// Запрос для getString.
 message StringRequest {
     string name = 1;
 }
 
-// Ответ для getString.
 message StringResponse {
   string text = 1;
 }
+
+message RegexRequest {}
+message RegexResponse {
+  string result = 1;
+}
+
+

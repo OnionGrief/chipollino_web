@@ -6,10 +6,15 @@ def index(request):
     return render(request, 'converter/index.html')
 
 
-from .grpc_client import getString
+from .chipollino_funcs import *
 
 def generator(request):
     str1 = getString()
     return render(request, 'converter/generator.html', {'smth': str1})
+
+from django.http import HttpResponse
+
+def get_random_regex(request):
+    return HttpResponse(getRegex())
 
     

@@ -1,6 +1,22 @@
 {% extends 'base/base.html' %}
 
+{% load static %}
+
+{% block css %} 
+<link rel="stylesheet" href="{% static 'css/automata_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
 {% block content %}
-        <h1>Страница приложения generator</h1>
-        <a href="{% url 'converter:generator' %}">Генератор</a>
+
+{% include 'converter/input.html' %}
+
+<details open>
+        <summary>Automata list</summary>
+        {% include 'converter/automata_list.html' %}
+</details>
+
+<p class="large_text">Result</p>
+    {% comment %} <h1>Страница приложения generator</h1>
+        <a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
 {% endblock %}

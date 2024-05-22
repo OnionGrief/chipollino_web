@@ -5,6 +5,10 @@
 # channel = grpc.insecure_channel('localhost:50051')
 # stub = generated_pb2_grpc.GreeterStub(channel)
 
+import os
+import subprocess
+
+
 def getString():
     # request = generated_pb2.StringRequest()
     # request.name = "web client"
@@ -24,5 +28,11 @@ def getNFA():
     ...
     q1 q2 a"""
 
-def run_converter(text):
+
+
+def run_interpreter(text):
+
+    os.chdir('Chipollino')
+    subprocess.call(['build/apps/InterpreterApp/Debug/InterpreterApp.exe'])
+    os.chdir('../')
     return "aaa"

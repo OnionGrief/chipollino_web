@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 
 # Application definition
 
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "converter.apps.ConverterConfig",
+    "Chipollino",
 ]
 
 MIDDLEWARE = [
@@ -120,6 +123,7 @@ STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
    BASE_DIR /  "static",
+   BASE_DIR / "config",
 ]
 
 # Default primary key field type
@@ -127,5 +131,8 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-import sys
-sys.path.append("converter/generated")
+# import sys
+# sys.path.append("converter/generated")
+
+# sessions settings
+

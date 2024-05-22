@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block css %} 
+{% block css %}
 <link rel="stylesheet" href="{% static 'css/automata_list.css' %}">
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}
@@ -16,7 +16,26 @@
         {% include 'converter/automata_list.html' %}
 </details>
 
-<p class="large_text">Result</p>
-    {% comment %} <h1>Страница приложения generator</h1>
-        <a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
+
+{% comment %} <h1>Страница приложения generator</h1>
+<a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
+
+<script>
+        function run_click() {
+                var text = document.getElementById('input-txt').value;
+                console.log("AAAA", text);
+                fetch('/runinterpreter/', {
+                                method: 'POST',
+                                headers: {
+                                        'Content-Type': 'text/plain'
+                                },
+                                body: text
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                                document.getElementById('result').innerHTML = data;
+                        });
+        }
+</script>
+
 {% endblock %}

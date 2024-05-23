@@ -31,8 +31,12 @@ def getNFA():
 
 
 def run_interpreter(text):
-
-    os.chdir('Chipollino')
-    subprocess.call(['build/apps/InterpreterApp/Debug/InterpreterApp.exe'])
-    os.chdir('../')
-    return "aaa"
+    try:
+        os.chdir('Chipollino')
+        subprocess.run('build/apps/InterpreterApp/Debug/InterpreterApp.exe', check=True)
+        os.chdir('../')
+    except subprocess.CalledProcessError:
+        os.chdir('../')
+        return None
+    with open("Chipollino/resources/report.tex", 'r', encoding='utf-8') as tex_file:
+        return tex_file.read()

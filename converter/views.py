@@ -25,8 +25,11 @@ def run_interpreter(request):
         text = request.POST['input-txt']
         with open('Chipollino/test.txt', 'w') as f:
             f.write(text)
-        chipollino_funcs.run_interpreter("")
-        return render(request, 'converter/result.html', {'res': "a"})
+        tex_file = chipollino_funcs.run_interpreter("")
+        if tex_file:
+            return render(request, 'converter/result.html', {'success': True, 'res': text, 'texresult': tex_file})
+        else:
+            return render(request, 'converter/result.html', {'res': "Converter error"})
 
 def pdf_view(request):
     file_path = 'Chipollino/report.pdf'

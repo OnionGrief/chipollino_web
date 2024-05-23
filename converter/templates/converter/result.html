@@ -10,12 +10,44 @@
 <a href="{% url 'converter:index' %}">Назад</a>
 
 <p class="large_text">Result</p>
-<p id="result">{{res}}</p>
-<iframe src="{% url 'converter:pdf_view' %}" width="100%" height="600px"></iframe>
-<!-- <div style="width: 100%; height: 1000px">
-        <object id="report_pdf" data="../../../Chipollino/report.pdf" type="application/pdf" width="100%" height="100%">
-          <p>It is not possiple to display the PDF-file</p>
-        </object>
-</div> -->
+<pre>{{res}}</pre>
+
+{% if success|default:False %}
+    <label for="block-selector">Формат отображения:</label>
+    <select id="block-selector">
+        <option value="blockpdf">PDF</option>
+        <option value="blocklatex">LaTeX</option>
+        <option value="blockhtml">HTML</option>
+    </select>
+
+    <div class="resultblock" id="blockpdf">
+        <iframe src="{% url 'converter:pdf_view' %}" width="100%" height="1000px"></iframe></div>
+    <div class="resultblock" id="blocklatex" style="display: none;">
+        <a id="tex-download" href="#" download="text.tex">Скачать report.tex</a>
+        <pre id="tex-content">{{texresult}}</pre>
+    </div>
+    <div class="resultblock" id="blockhtml" style="display: none;">HTML</div>
+{% endif %}
+
+<script>
+    const blockSelector = document.getElementById('block-selector');
+    blockSelector.addEventListener('change', (event) => {
+        const selectedValue = event.target.value;
+
+        const blocks = document.querySelectorAll('.resultblock');
+        for (const block of blocks) {
+            if (block.id == selectedValue) {
+                block.style.display = 'block';
+            } else {
+                block.style.display = 'none';
+            }
+        }
+    });
+
+    
+    var tex_content = document.getElementById("tex-content").innerHTML;
+    var downloadLink = document.getElementById("tex-download");
+    downloadLink.href = "data:application/tex;charset=utf-8," + encodeURIComponent(tex_content);
+</script>
 
 {% endblock %}

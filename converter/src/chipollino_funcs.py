@@ -29,7 +29,6 @@ def getNFA():
     q1 q2 a"""
 
 
-
 def run_interpreter(text):
     try:
         os.chdir('Chipollino')

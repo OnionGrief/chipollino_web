@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "converter.apps.ConverterConfig",
     "Chipollino",
+    "latex2mathml",
 ]
 
 MIDDLEWARE = [
@@ -131,8 +132,8 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# import sys
-# sys.path.append("converter/generated")
+import sys
+sys.path.append("converter/src")
 
 # sessions settings
 

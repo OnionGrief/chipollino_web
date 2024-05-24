@@ -8,7 +8,7 @@ def index(request):
     return render(request, 'converter/index.html')
 
 
-from converter import chipollino_funcs
+from converter.src import chipollino_funcs, tex_parser
 
 def generator(request):
     str1 = chipollino_funcs.getString()
@@ -27,7 +27,8 @@ def run_interpreter(request):
             f.write(text)
         tex_file = chipollino_funcs.run_interpreter("")
         if tex_file:
-            return render(request, 'converter/result.html', {'success': True, 'res': text, 'texresult': tex_file})
+            result_list = tex_parser.tex_parse(tex_file)
+            return render(request, 'converter/result.html', {'success': True, 'res': text, 'texresult': tex_file, 'result_list': result_list})
         else:
             return render(request, 'converter/result.html', {'res': "Converter error"})
 

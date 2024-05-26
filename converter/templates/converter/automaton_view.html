@@ -1,0 +1,28 @@
+{% load static %}
+<div class="automaton_view">
+    <div class="automaton_txt">
+        <div class="automaton_txt_header">
+            <!-- <button>Download</button> -->
+            <div style="padding: 0;">
+                format:
+
+                <select class="format-selector">
+                    {% for format in format_list %}
+                    <option value="{{format.name}}">{{format.name}}</option>
+                    {% endfor %}
+
+                </select>
+            </div>
+        </div>
+
+        {% for format in format_list %}
+        <pre class="automaton_format" data-value="{{format.name}}" style="display: none;">{{format.txt}}</pre>
+        {% endfor %}
+    </div>
+
+    <div id="automaton_image">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <image xlink:href="{% static 'example.svg' %}" width="100%" height="100%" />
+        </svg>
+    </div>
+</div>

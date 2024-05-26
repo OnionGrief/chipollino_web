@@ -53,18 +53,19 @@ def tex_parse(text):
         line = lines[i]
         if not line.isspace() and line:
             if re.search(r"\\section{.*}", line):
-                res.append(create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':'))
+                res.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
             elif "\\begin{tikzpicture}" in line:
                 graph_tex = ""
                 while "\\end{tikzpicture}" not in line and i < len(lines):
                     i += 1
                     line = lines[i]
                     graph_tex += line + '\n'
-                res.append(create_tag('pre', graph_tex))
+                format_list = [{'name': 'LaTeX', 'txt': graph_tex}, {'name': 'for-test', 'txt': 'test txt'}]
+                res.append({'type': 'automaton', 'res': format_list})
             else:
                 print(repr(line))
                 line = apply_mathml(line)
-                res.append(create_tag('p', line))
+                res.append({'type': 'text', 'res': create_tag('p', line)})
         i += 1
 
     return res

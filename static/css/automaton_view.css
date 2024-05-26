@@ -1,0 +1,23 @@
+.automaton_view {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    height: 300px;
+    margin: 20px;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+}
+
+.automaton_view div {
+    padding: 10px;
+}
+
+.automaton_txt {
+    background-color: #e6e6e6;
+    overflow: auto;
+}
+
+.automaton_txt_header {
+    background-color: #eeeeee;
+    display: flex;
+    justify-content: space-around;
+}

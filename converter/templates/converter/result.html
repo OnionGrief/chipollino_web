@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block css %}
+<link rel="stylesheet" href="{% static 'css/automaton_view.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -29,12 +30,16 @@
     <div class="resultblock" id="blockhtml" style="display: block;">
         <div style="display: flex; flex-direction: column;">
         {% for elem in result_list %}
-            {{elem|safe}}
+        {% if elem.type == 'automaton' %}
+        {% include 'converter/automaton_view.html' with format_list=elem.res %}
+        {% else %}
+        {{elem.res|safe}}
+        {% endif %}
         {% empty %}
-            No content to show.
+        No content to show.
         {% endfor %}
-        </div>
     </div>
+</div>
 {% endif %}
 
 <script>
@@ -56,6 +61,31 @@
     var tex_content = document.getElementById("tex-content").innerHTML;
     var downloadLink = document.getElementById("tex-download");
     downloadLink.href = "data:application/tex;charset=utf-8," + encodeURIComponent(tex_content);
+
+
+    const automata = document.querySelectorAll('.automaton_view');
+    automata.forEach(element => {
+        const blocks = element.querySelectorAll('.automaton_format');
+        for (const block of blocks) {
+            if (block.dataset.value == 'LaTeX') {
+                block.style.display = 'block';
+            }
+        }
+        element.querySelectorAll('.format-selector').forEach(selector => {
+            selector.addEventListener('change', (event) => {
+                const selectedValue = event.target.value;
+                const blocks = element.querySelectorAll('.automaton_format');
+
+                for (const block of blocks) {
+                    if (block.dataset.value == selectedValue) {
+                        block.style.display = 'block';
+                    } else {
+                        block.style.display = 'none';
+                    }
+                }
+            })
+        });
+    });
 </script>
 
 {% endblock %}

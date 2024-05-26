@@ -2,24 +2,22 @@
 <div style="display: flex">
     <form action="/result/" method="post" style="width: 70%"">
         {% csrf_token %}
-        <textarea name="input-txt" id="input-txt" style="width: 100%; height: 300px; font-size: larger;"></textarea>
-        <button  type="submit" style="margin: 20px;" >Run</button> 
+        <textarea name=" input-txt" id="input-txt" style="width: 100%; height: 300px; font-size: larger;"></textarea>
+        <button type="submit" style="margin: 20px;">Run</button>
         <!-- onclick="run_click()" -->
     </form>
-      <div id="input-right-panel">
+    <div id="input-right-panel">
         <select>
-          <option value="" disabled selected>Function</option>
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
+            <option value="" disabled selected>Function</option>
+            <option value="option1">Option 1</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
         </select>
         <select>
-          <option value="" disabled selected>Generate argument</option>
-          <option value="regex">Regex</option>
-          <option value="nfa">NFA</option>
-          <option value="mfa">MFA</option>
+            <option value="" disabled selected>Generate argument</option>
+            <option value="regex">Regex</option>
+            <option value="nfa">NFA</option>
+            <option value="mfa">MFA</option>
         </select>
-      </div>
+    </div>
 </div>
-
-  

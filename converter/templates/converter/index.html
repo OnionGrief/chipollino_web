@@ -12,29 +12,29 @@
 {% include 'converter/input.html' %}
 
 <details open>
-        <summary>Automata list</summary>
-        {% include 'converter/automata_list.html' %}
+    <summary>Automata list</summary>
+    {% include 'converter/automata_list.html' %}
 </details>
 
 {% comment %} <h1>Страница приложения generator</h1>
 <a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
 
 <script>
-        function run_click() {
-                var text = document.getElementById('input-txt').value;
-                console.log("AAAA", text);
-                fetch('/runinterpreter/', {
-                                method: 'POST',
-                                headers: {
-                                        'Content-Type': 'text/plain'
-                                },
-                                body: text
-                        })
-                        .then(response => response.text())
-                        .then(data => {
-                                document.getElementById('result').innerHTML = data;
-                        });
-        }
+    function run_click() {
+        var text = document.getElementById('input-txt').value;
+        console.log("AAAA", text);
+        fetch('/runinterpreter/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: text
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('result').innerHTML = data;
+            });
+    }
 </script>
 
 {% endblock %}

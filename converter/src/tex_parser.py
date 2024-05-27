@@ -1,5 +1,7 @@
 import re
 import latex2mathml.converter
+from converter.models import Graph
+from converter.src import formats_generator
 
 # получить часть файла от begin до end_mark
 def get_content(text, begin, end_mark="}"):
@@ -33,10 +35,53 @@ def apply_mathml(text):
         return latex2mathml.converter.convert(match.group(1))
     return re.sub(r'\$([^\$]*)\$', replace_substring, text)
 
+# заменяет $\regexpstr{..}$ на ..
+def del_regexpstr(text):
+    def replace_substring(match):
+        return '$' + match.group(1) + '$'
+    return re.sub(r'\$\\regexpstr{([^\$]*) }\$', replace_substring, text)
+
+def del_empt(text):
+    return re.sub(r'\\empt', 'ε', text)
+
 def create_tag(tag, text):
     return f'<{tag}>{text}</{tag}>'
 
-def tex_parse(text):
+def parse_tikz(text):
+    text = del_empt(del_regexpstr(text))
+    lines = text.split("\n")
+    nodes, edges = {}, []
+    dummy = ""
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        if line.startswith("\\node"):
+            node_match = re.match(r"\\node \(([^\)]*)\)[^\[]*\[([^\]]*)\] {\$([^\$]*)\$};", line)
+            id, style, label = node_match.groups()
+            is_double, is_dummy = False, False
+            if "double" in style:
+                is_double = True
+            if "draw=none" in style:
+                is_dummy = True
+                dummy = id
+            nodes[id] = {"id": id, "label": label, "is_double": is_double, "is_init": False}
+        elif line.startswith("\\draw [->, thick]"):
+            edge_match = re.match(r"\\draw \[->, thick\] \(([^\)]*)\).*\(([^\(]*)\);", line)
+            source, target = edge_match.groups()
+            line2 = lines[i+1].strip()
+            label = ""
+            if line2.startswith("\\draw ("):
+                label_match = re.match(r"\\draw .*{\$([^\$]*)\$};", line2)
+                label = label_match.group(1)
+                i += 1
+            if source == dummy:
+                nodes[target]["is_init"] = True
+            edges.append({"source": source, "target": target, "label": label})
+        i += 1
+
+    return Graph(nodes=nodes, edges=edges)
+
+def parse_tex(text):
     res = []
 
     text = get_content(text, '\maketitle', '\end{document}')
@@ -55,12 +100,13 @@ def tex_parse(text):
             if re.search(r"\\section{.*}", line):
                 res.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
             elif "\\begin{tikzpicture}" in line:
-                graph_tex = ""
+                graph_tex = line
                 while "\\end{tikzpicture}" not in line and i < len(lines):
                     i += 1
                     line = lines[i]
-                    graph_tex += line + '\n'
+                    graph_tex += '\n' + line
                 format_list = [{'name': 'LaTeX', 'txt': graph_tex}, {'name': 'for-test', 'txt': 'test txt'}]
+                graph = parse_tikz(graph_tex)
                 res.append({'type': 'automaton', 'res': format_list})
             else:
                 print(repr(line))

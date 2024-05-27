@@ -27,13 +27,13 @@ def run_interpreter(request):
             f.write(text)
         tex_file = chipollino_funcs.run_interpreter("")
         if tex_file:
-            result_list = tex_parser.tex_parse(tex_file)
+            result_list = tex_parser.parse_tex(tex_file)
             return render(request, 'converter/result.html', {'success': True, 'res': text, 'texresult': tex_file, 'result_list': result_list})
         else:
             return render(request, 'converter/result.html', {'res': "Converter error"})
 
 def pdf_view(request):
-    file_path = 'Chipollino/report.pdf'
+    file_path = 'Chipollino/rendered_report.pdf'
     if os.path.exists(file_path):
         with open(file_path, 'rb') as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type='application/pdf')

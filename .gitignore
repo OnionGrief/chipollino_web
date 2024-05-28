@@ -1,3 +1,4 @@
 __pycache__
 Chipollino/
 /converter/migrations
+db.sqlite3

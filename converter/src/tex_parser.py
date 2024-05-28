@@ -64,7 +64,8 @@ def parse_tikz(text):
             if "draw=none" in style:
                 is_dummy = True
                 dummy = id
-            nodes[id] = {"id": id, "label": label, "is_double": is_double, "is_init": False}
+            else:
+                nodes[id] = {"id": id, "label": label, "is_double": is_double, "is_init": False}
         elif line.startswith("\\draw [->, thick]"):
             edge_match = re.match(r"\\draw \[->, thick\] \(([^\)]*)\).*\(([^\(]*)\);", line)
             source, target = edge_match.groups()
@@ -76,10 +77,11 @@ def parse_tikz(text):
                 i += 1
             if source == dummy:
                 nodes[target]["is_init"] = True
-            edges.append({"source": source, "target": target, "label": label})
+            else:
+                edges.append({"source": source, "target": target, "label": label})
         i += 1
 
-    return Graph(nodes=nodes, edges=edges)
+    return Graph(nodes=nodes.values(), edges=edges)
 
 def parse_tex(text):
     res = []
@@ -105,8 +107,10 @@ def parse_tex(text):
                     i += 1
                     line = lines[i]
                     graph_tex += '\n' + line
-                format_list = [{'name': 'LaTeX', 'txt': graph_tex}, {'name': 'for-test', 'txt': 'test txt'}]
+                format_list = [{'name': 'LaTeX', 'txt': graph_tex}]
                 graph = parse_tikz(graph_tex)
+                format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
+                format_list.append({'name': 'DSL', 'txt': formats_generator.to_dsl(graph)})
                 res.append({'type': 'automaton', 'res': format_list})
             else:
                 print(repr(line))

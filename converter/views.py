@@ -28,9 +28,9 @@ def run_interpreter(request):
         tex_file = chipollino_funcs.run_interpreter("")
         if tex_file:
             result_list = tex_parser.parse_tex(tex_file)
-            return render(request, 'converter/result.html', {'success': True, 'res': text, 'texresult': tex_file, 'result_list': result_list})
+            return render(request, 'converter/result.html', {'success': True, 'test': text, 'texresult': tex_file, 'result_list': result_list})
         else:
-            return render(request, 'converter/result.html', {'res': "Converter error"})
+            return render(request, 'converter/result.html', {'test': "Converter error"})
 
 def pdf_view(request):
     file_path = 'Chipollino/rendered_report.pdf'

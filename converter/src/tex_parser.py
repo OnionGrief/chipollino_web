@@ -37,6 +37,7 @@ def apply_mathml(text):
 
 # заменяет $\regexpstr{..}$ на ..
 def del_regexpstr(text):
+    text = re.sub(r'\\pgfsetfillopacity{[^}]*}', "", text)
     def replace_substring(match):
         return '$' + match.group(1) + '$'
     return re.sub(r'\$\\regexpstr{([^\$]*) }\$', replace_substring, text)

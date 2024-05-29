@@ -1,7 +1,7 @@
 import re
 import latex2mathml.converter
 from converter.models import Graph
-from converter.src import formats_generator
+from converter.src import chipollino_funcs, formats_generator
 
 # получить часть файла от begin до end_mark
 def get_content(text, begin, end_mark="}"):
@@ -84,8 +84,9 @@ def parse_tikz(text):
 
     return Graph(nodes=nodes.values(), edges=edges)
 
-def parse_tex(text):
-    res = []
+def parse_tex(text, session_key = "0"):
+    formats = []
+    svg_graph = ""
 
     text = get_content(text, '\maketitle', '\end{document}')
 
@@ -101,22 +102,25 @@ def parse_tex(text):
         line = lines[i]
         if not line.isspace() and line:
             if re.search(r"\\section{.*}", line):
-                res.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
+                formats.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
             elif "\\begin{tikzpicture}" in line:
                 graph_tex = line
                 while "\\end{tikzpicture}" not in line and i < len(lines):
                     i += 1
                     line = lines[i]
                     graph_tex += '\n' + line
+
                 format_list = [{'name': 'LaTeX', 'txt': graph_tex}]
                 graph = parse_tikz(graph_tex)
                 format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
                 format_list.append({'name': 'DSL', 'txt': formats_generator.to_dsl(graph)})
-                res.append({'type': 'automaton', 'res': format_list})
+                format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
+                svg_graph = chipollino_funcs.create_svg(graph_tex, session_key=session_key)
+                formats.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
             else:
                 print(repr(line))
                 line = apply_mathml(line)
-                res.append({'type': 'text', 'res': create_tag('p', line)})
+                formats.append({'type': 'text', 'res': create_tag('p', line)})
         i += 1
 
-    return res
+    return formats

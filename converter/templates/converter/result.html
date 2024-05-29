@@ -28,10 +28,10 @@
     <pre id="tex-content" style="border: 1px solid rgb(160, 160, 160);">{{texresult}}</pre>
 </div>
 <div class="resultblock" id="blockhtml" style="display: block;">
-    <div style="display: flex; flex-direction: column;">
+    <div id="htmlres" style="display: flex; flex-direction: column;">
         {% for elem in result_list %}
         {% if elem.type == 'automaton' %}
-        {% include 'converter/automaton_view.html' with format_list=elem.res %}
+        {% include 'converter/automaton_view.html' with format_list=elem.res.formats svg_graph=elem.res.svg %}
         {% else %}
         {{elem.res|safe}}
         {% endif %}

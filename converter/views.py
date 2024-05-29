@@ -20,14 +20,14 @@ def get_random_regex(request):
 def run_interpreter(request):
     if not request.session.session_key:
         request.session.create()
-    print(request.session.session_key)
+    session_key = request.session.session_key
     if request.method == 'POST':
         text = request.POST['input-txt']
         with open('Chipollino/test.txt', 'w') as f:
             f.write(text)
         tex_file = chipollino_funcs.run_interpreter("")
         if tex_file:
-            result_list = tex_parser.parse_tex(tex_file)
+            result_list = tex_parser.parse_tex(tex_file, session_key = session_key)
             return render(request, 'converter/result.html', {'success': True, 'test': text, 'texresult': tex_file, 'result_list': result_list})
         else:
             return render(request, 'converter/result.html', {'test': "Converter error"})
@@ -37,7 +37,7 @@ def pdf_view(request):
     if os.path.exists(file_path):
         with open(file_path, 'rb') as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-            response.close()
+            # response.close()
             # os.remove(file_path)
             return response
     else:

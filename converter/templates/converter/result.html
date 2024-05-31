@@ -32,6 +32,10 @@
         {% for elem in result_list %}
         {% if elem.type == 'automaton' %}
         {% include 'converter/automaton_view.html' with format_list=elem.res.formats svg_graph=elem.res.svg %}
+        {% elif elem.type == 'table' or elem.type == 'plot' %}
+        <div style="width: 50%">
+        {{elem.res|safe}}
+        </div>
         {% else %}
         {{elem.res|safe}}
         {% endif %}

@@ -3,11 +3,8 @@
 }
 
 #input-right-panel {
-    width: 30%;
     display: flex;
     flex-direction: column;
-}
-
-#input-right-panel select {
-    margin: 30px 30px 30px 30px;
+    padding: 30px;
+    justify-content: space-evenly;
 }

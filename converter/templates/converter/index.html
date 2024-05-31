@@ -20,21 +20,37 @@
 <a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
 
 <script>
-    function run_click() {
-        var text = document.getElementById('input-txt').value;
-        console.log("AAAA", text);
-        fetch('/runinterpreter/', {
-                method: 'POST',
+    // function run_click() {
+    //     var text = document.getElementById('input-txt').value;
+    //     fetch('/runinterpreter/', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'text/plain'
+    //             },
+    //             body: text
+    //         })
+    //         .then(response => response.text())
+    //         .then(data => {
+    //             document.getElementById('result').innerHTML = data;
+    //         });
+    // }
+
+    const generatorSelector = document.getElementById('generator-selector');
+    generatorSelector.addEventListener('change', (event) => {
+        print('aaaa')
+        const selectedValue = event.target.value;
+        fetch('/generator/', {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'text/plain'
                 },
-                body: text
+                body: selectedValue
             })
             .then(response => response.text())
             .then(data => {
-                document.getElementById('result').innerHTML = data;
+                document.getElementById('generator_result').innerHTML = data;
             });
-    }
+    });
 </script>
 
 {% endblock %}

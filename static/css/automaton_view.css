@@ -21,3 +21,8 @@
     display: flex;
     justify-content: space-around;
 }
+
+#htmlres p {
+    margin-block-start: 3px;
+    margin-block-end: 3px;
+}

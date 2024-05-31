@@ -1,0 +1,2 @@
+Django==5.0.6
+latex2mathml==3.77.0

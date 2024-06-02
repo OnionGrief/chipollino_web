@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    volumes:
+      - db:/db
+    restart: unless-stopped
+    environment:
+      - DJANGO_DEBUG=1
+      - DJANGO_DB=/db/db.sqlite3
+      - CHIPOLLINO_BINARY=build/apps/InterpreterApp/InterpreterApp
+  caddy:
+    build: 
+      context: .
+      dockerfile: ./caddy/Dockerfile
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8000:8000
+volumes:
+  db:

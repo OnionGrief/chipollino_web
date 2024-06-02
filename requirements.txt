@@ -1,2 +1,4 @@
 Django==5.0.6
 latex2mathml==3.77.0
+gunicorn==22.0.0
+dot2tex==2.11.3

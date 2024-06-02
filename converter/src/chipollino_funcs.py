@@ -10,6 +10,7 @@ import subprocess
 import re
 from converter.models import TemporaryFile
 from converter.src import tex_parser
+import chipollino_web.env as env
 
 
 def getString():
@@ -37,7 +38,7 @@ def run_interpreter(text, session_key="0"):
         f.write(text)
     try:
         os.chdir('Chipollino')
-        subprocess.run(f'build/apps/InterpreterApp/Debug/InterpreterApp.exe {session_key}test.txt {session_key}', check=True)
+        subprocess.run(f'{env.CHIPOLLINO_BINARY} {session_key}test.txt {session_key}', check=True, shell=True)
         os.chdir('../')
     except subprocess.CalledProcessError:
         os.chdir('../')
@@ -87,8 +88,8 @@ def create_svg(text, session_key="0"):
         with open(f'{file_name}.tex', 'w', encoding='utf-8') as f:
             f.write(tex_str)
         print('rendering graph image..')
-        subprocess.run(f'latex {file_name}.tex > {file_name}log.log', check=True)
-        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True)
+        subprocess.run(f'latex {file_name}.tex > {file_name}log.log', check=True, shell=True)
+        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True)
         with open(f'{file_name}.svg', 'r', encoding='utf-8') as svg_file:
             svg_str = svg_file.read()
             svg_str = re.sub(r"width='[^']*' height='[^']*'" , "width='100%'' height='100%'", svg_str)

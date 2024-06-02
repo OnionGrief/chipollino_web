@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 
+import chipollino_web.env as env
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,9 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-w2w*9q7o1@e@)vn#wa5c0lio28*lztdfx9zv39t9m@w&*#9elt"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.DJANGO_DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ "chipollino.flygrounder.ru", "localhost" ]
+
+CSRF_TRUSTED_ORIGINS = ['https://chipollino.flygrounder.ru']
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
@@ -78,10 +82,12 @@ WSGI_APPLICATION = "chipollino_web.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+DB_NAME = Path(env.DJANGO_DB) if env.DJANGO_DB is not None else BASE_DIR / "db.sqlite3"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": DB_NAME,
     }
 }
 

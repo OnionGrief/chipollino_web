@@ -1,0 +1,10 @@
+:8000 {
+	root * /var/www/html
+	file_server /static/* browse
+
+	@notStatic {
+		not path /static/*
+	}
+
+	reverse_proxy @notStatic http://app:8000
+}

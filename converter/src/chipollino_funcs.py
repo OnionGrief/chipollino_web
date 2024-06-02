@@ -1,35 +1,9 @@
-# import grpc
-# from .generated import converter_pb2 as generated_pb2
-# from .generated import converter_pb2_grpc as generated_pb2_grpc
-
-# channel = grpc.insecure_channel('localhost:50051')
-# stub = generated_pb2_grpc.GreeterStub(channel)
-
 import os
 import subprocess
 import re
 from converter.models import TemporaryFile
 from converter.src import tex_parser
-
-
-def getString():
-    # request = generated_pb2.StringRequest()
-    # request.name = "web client"
-    # response = stub.getString(request)
-    # return response.text
-    return "hello world"
-
-def getRegex():
-    # request = generated_pb2.RegexRequest()
-    # response = stub.getRegex(request)
-    # return response.result
-    return "a*b(a|b)"
-
-def getNFA():
-    return """NFA
-    q1 initial_state
-    ...
-    q1 q2 a"""
+import chipollino_web.env as env
 
 
 def run_interpreter(text, session_key="0"):
@@ -37,9 +11,10 @@ def run_interpreter(text, session_key="0"):
         f.write(text)
     try:
         os.chdir('Chipollino')
-        subprocess.run(f'build/apps/InterpreterApp/Debug/InterpreterApp.exe {session_key}test.txt {session_key}', check=True)
+        subprocess.run(f'{env.CHIPOLLINO_BINARY} {session_key}test.txt {session_key}', check=True, shell=True)
         os.chdir('../')
-    except subprocess.CalledProcessError:
+    # except subprocess.CalledProcessError:
+    except Exception:
         os.chdir('../')
         return None
     with open(f"Chipollino/resources/{session_key}report.tex", 'r', encoding='utf-8') as tex_file:
@@ -48,7 +23,7 @@ def run_interpreter(text, session_key="0"):
 
 def get_pdf(session_key="0"):
     file_path = f'Chipollino/{session_key}rendered_report.pdf'
-    file_in_db, _ = TemporaryFile.objects.get_or_create(path=file_path)
+    file_in_db, _ = TemporaryFile.objects.get_or_create(path=file_path, session_key=session_key)
     file_in_db.save()
 
     files = os.listdir('Chipollino')
@@ -87,14 +62,14 @@ def create_svg(text, session_key="0"):
         with open(f'{file_name}.tex', 'w', encoding='utf-8') as f:
             f.write(tex_str)
         print('rendering graph image..')
-        subprocess.run(f'latex {file_name}.tex > {file_name}log.log', check=True)
-        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True)
+        subprocess.run(f'latex {file_name}.tex', check=True, shell=True, stdout=subprocess.PIPE)
+        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True)
         with open(f'{file_name}.svg', 'r', encoding='utf-8') as svg_file:
             svg_str = svg_file.read()
             svg_str = re.sub(r"width='[^']*' height='[^']*'" , "width='100%'' height='100%'", svg_str)
         
         files = os.listdir()
-        del_files = [f for f in files if f.startswith(f"{file_name}.")]
+        del_files = [f for f in files if f.startswith(f"{file_name}")]
         for file in del_files:
             os.remove(file)
 
@@ -103,3 +78,16 @@ def create_svg(text, session_key="0"):
         os.chdir('../')
         return None
     return svg_str
+
+def get_random_object(type):
+    try:
+        os.chdir('Chipollino')
+        res = subprocess.run(f'{env.CHIPOLLINO_GENERATOR_BINARY} {type}', stdout=subprocess.PIPE, check=True, shell=True)
+        os.chdir('../')
+        output = res.stdout.decode("utf-8")
+        return output.replace('Input generator\n', '')
+    # except subprocess.CalledProcessError:
+    except Exception:
+        os.chdir('../')
+        return None
+    

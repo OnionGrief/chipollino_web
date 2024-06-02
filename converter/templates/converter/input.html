@@ -5,21 +5,18 @@
         <p class="large_text">Entry text:</p>
         <textarea name="input-txt" id="input-txt" style="width: 100%; height: 300px; font-size: larger;"></textarea>
         <button type="submit" style="margin: 20px;">Run</button>
-        <!-- onclick="run_click()" -->
     </form>
     <div id="input-right-panel">
         <select>
             <option value="" disabled selected>Function</option>
-            <option value="option1">Option 1</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
+            <option value="func1">func 1</option>
         </select>
         <div style="display: flex; flex-direction: column;">
         <select id="generator-selector">
             <option value="" disabled selected>Generate argument</option>
-            <option value="regex">Regex</option>
-            <option value="nfa">NFA</option>
-            <option value="mfa">MFA</option>
+            <option value="Regex">Regex</option>
+            <option value="NFA">NFA</option>
+            <option value="MFA">MFA</option>
         </select>
         <p id="generator_result"> </p>
         </div>

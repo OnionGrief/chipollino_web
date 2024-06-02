@@ -1,26 +1,17 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.views import View
-from django.views.generic import ListView, DetailView
-from django.http import HttpResponse, FileResponse
+from django.shortcuts import render
+from django.http import HttpResponse
 import os
 from .models import TemporaryFile
 
 def index(request):
+    if not request.session.session_key:
+        request.session.create()
     return render(request, 'converter/index.html')
 
 
-from converter.src import chipollino_funcs, tex_parser
-
-def generator(request):
-    str1 = chipollino_funcs.getString()
-    return render(request, 'converter/generator.html', {'smth': str1})
-
-def get_random_regex(request):
-    return HttpResponse(chipollino_funcs.getRegex())
+from converter.src import chipollino_funcs
 
 def run_interpreter(request):
-    if not request.session.session_key:
-        request.session.create()
     session_key = request.session.session_key
     if request.method == 'POST':
         text = request.POST['input-txt']
@@ -38,15 +29,35 @@ def pdf_view(request):
     else:
         return HttpResponse("PDF file not found", status=404)
 
+def get_random_object(request, object_type):
+    if request.method == 'GET':
+        res = chipollino_funcs.get_random_object(object_type)
+        if object_type in ['MFA', 'NFA']:
+            res = f"get{object_type} "
+        return HttpResponse(res)
 
+
+from django.contrib.sessions.models import Session
+from django.utils import timezone
 from datetime import datetime, timedelta
+
+def is_session_active(session_key):
+    try:
+        session = Session.objects.get(session_key=session_key)
+        if session.expire_date > timezone.now():
+            return True
+    except Session.DoesNotExist:
+        return False
+    return False
 
 def delete_files(request):
     old_files = TemporaryFile.objects.filter(created_at__lt = datetime.utcnow() - timedelta(days=1))
-    count = len(old_files)
+    count = 0
     for file in old_files:
-        os.remove(file.path)
-    old_files.delete()
+        if not is_session_active(file.session_key):
+            os.remove(file.path)
+            file.delete()
+            count += 1
     return HttpResponse(f"deleted {count} files")
 
     

@@ -15,12 +15,16 @@ def run_interpreter(request):
     session_key = request.session.session_key
     if request.method == 'POST':
         text = request.POST['input-txt']
-        tex_file = chipollino_funcs.run_interpreter(text, session_key)
-        if tex_file:
+        running_res, ok = chipollino_funcs.run_interpreter(text, session_key)
+        if ok:
+            tex_file = running_res
             result_list = chipollino_funcs.parse_tex(tex_file, session_key = session_key)
             return render(request, 'converter/result.html', {'success': True, 'test': text, 'texresult': tex_file, 'result_list': result_list})
         else:
-            return render(request, 'converter/result.html', {'test': "Converter error"})
+            if running_res:
+                return render(request, 'converter/result.html', {'test': running_res})
+            else:
+                return render(request, 'converter/result.html', {'test': "Converter error"})
 
 def pdf_view(request):
     pdf_file = chipollino_funcs.get_pdf(request.session.session_key)

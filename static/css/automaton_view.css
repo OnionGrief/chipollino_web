@@ -1,4 +1,5 @@
 .automaton_view {
+    padding: 5px;
     display: grid;
     grid-template-columns: 1fr 2fr;
     height: 300px;
@@ -7,19 +8,27 @@
     border-radius: 10px;
 }
 
-.automaton_view div {
-    padding: 10px;
-}
-
 .automaton_txt {
+    padding: 10px;
+    border-radius: 8px;
     background-color: #e6e6e6;
     overflow: auto;
+    height: inherit;
 }
 
 .automaton_txt_header {
+    padding: 10px;
     background-color: #eeeeee;
     display: flex;
     justify-content: space-around;
+}
+
+.automaton_format {
+    padding: 10px;
+}
+
+.automaton_image {
+    height: inherit;
 }
 
 #htmlres p {

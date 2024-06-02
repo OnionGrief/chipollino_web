@@ -11,15 +11,17 @@ def run_interpreter(text, session_key="0"):
         f.write(text)
     try:
         os.chdir('Chipollino')
-        subprocess.run(f'{env.CHIPOLLINO_BINARY} {session_key}test.txt {session_key}', check=True, shell=True)
+        subprocess.run([env.CHIPOLLINO_BINARY, f'{session_key}test.txt', session_key], check=True, shell=True, capture_output=True, text=True)
         os.chdir('../')
-    # except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        os.chdir('../')
+        return e.stderr, False
     except Exception:
         os.chdir('../')
-        return None
+        return None, False
     with open(f"Chipollino/resources/{session_key}report.tex", 'r', encoding='utf-8') as tex_file:
         tex_content = tex_file.read()
-    return tex_content
+    return tex_content, True
 
 def get_pdf(session_key="0"):
     file_path = f'Chipollino/{session_key}rendered_report.pdf'
@@ -82,7 +84,7 @@ def create_svg(text, session_key="0"):
 def get_random_object(type):
     try:
         os.chdir('Chipollino')
-        res = subprocess.run(f'{env.CHIPOLLINO_GENERATOR_BINARY} {type}', stdout=subprocess.PIPE, check=True, shell=True)
+        res = subprocess.run([env.CHIPOLLINO_GENERATOR_BINARY, type], stdout=subprocess.PIPE, check=True, shell=True)
         os.chdir('../')
         output = res.stdout.decode("utf-8")
         return output.replace('Input generator\n', '')

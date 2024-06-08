@@ -99,8 +99,9 @@ def parse_tex(text, session_key = "0"):
 
     text = get_content(text, '\maketitle', '\end{document}')
 
-    text = re.sub(r"(?<!\\)%.*\n", "\n", text)
     text = re.sub(r"(?<!\\)\\ ", " ", text)
+    text = text.replace("\\\\", "\n")
+    text = re.sub(r"(?<!\\)%.*\n", "\n", text)
     text = re.sub(r"\\begin{frame}.*\n", "", text)
     text = re.sub(r"\\end{frame}\n", "", text)
 

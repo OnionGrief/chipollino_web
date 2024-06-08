@@ -27,7 +27,8 @@ def run_interpreter(request):
                 return render(request, 'converter/result.html', {'test': "Converter error"})
 
 def pdf_view(request):
-    pdf_file = chipollino_funcs.get_pdf(request.session.session_key)
+    pdf_file, file_path = chipollino_funcs.get_pdf(request.session.session_key)
+    os.remove(file_path)
     if pdf_file:
             return HttpResponse(pdf_file, content_type='application/pdf')
     else:
@@ -59,9 +60,10 @@ def delete_files(request):
     count = 0
     for file in old_files:
         if not is_session_active(file.session_key):
-            os.remove(file.path)
+            if os.path.exists(file.path):
+                os.remove(file.path)
+                count += 1
             file.delete()
-            count += 1
     return HttpResponse(f"deleted {count} files")
 
     

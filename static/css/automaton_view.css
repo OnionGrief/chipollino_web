@@ -13,7 +13,6 @@
     border-radius: 8px;
     background-color: #e6e6e6;
     overflow: auto;
-    height: inherit;
 }
 
 .automaton_txt_header {

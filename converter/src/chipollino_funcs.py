@@ -35,7 +35,7 @@ def get_pdf(session_key="0"):
     
     if os.path.exists(file_path):
         with open(file_path, 'rb') as pdf_file:
-            return pdf_file.read()
+            return pdf_file.read(), file_path
     else:
         return None
 
@@ -84,10 +84,10 @@ def create_svg(text, session_key="0"):
 def get_random_object(type):
     try:
         os.chdir('Chipollino')
-        res = subprocess.run([env.CHIPOLLINO_GENERATOR_BINARY, type], stdout=subprocess.PIPE, check=True, shell=True)
+        res = subprocess.run([env.CHIPOLLINO_GENERATOR_BINARY, type, 'false'], stdout=subprocess.PIPE, check=True, shell=True)
         os.chdir('../')
         output = res.stdout.decode("utf-8")
-        return output.replace('Input generator\n', '')
+        return re.sub(r'Input generator\s*', '', output)
     # except subprocess.CalledProcessError:
     except Exception:
         os.chdir('../')

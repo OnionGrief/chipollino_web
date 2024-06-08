@@ -29,6 +29,15 @@
                 document.getElementById('generator_result').innerHTML = data;
             });
     });
+
+    const testGenerator = document.getElementById('randomtest');
+    testGenerator.addEventListener('click', (event) => {
+        fetch('/generator/' + 'Test')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('input-txt').innerHTML = data;
+            });
+    });
 </script>
 
 {% endblock %}

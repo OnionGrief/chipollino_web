@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 import re
 from converter.models import TemporaryFile
 from converter.src import tex_parser
@@ -7,20 +8,31 @@ import chipollino_web.env as env
 
 
 def run_interpreter(text, session_key="0"):
-    with open(f'Chipollino/{session_key}test.txt', 'w', encoding='utf-8') as f:
+    user_path = 'Chipollino/' + session_key
+    if not os.path.exists(user_path):
+        os.mkdir(user_path)
+    with open(f'Chipollino/{session_key}/test.txt', 'w', encoding='utf-8') as f:
         f.write(text)
     try:
-        subprocess.run([env.CHIPOLLINO_BINARY, f'{session_key}test.txt', session_key], check=True, shell=True, capture_output=True, text=True, cwd='Chipollino')
+        subprocess.run([env.CHIPOLLINO_BINARY, f'{session_key}/test.txt', session_key], check=True, shell=True, capture_output=True, text=True, cwd='Chipollino')
     except subprocess.CalledProcessError as e:
-        return e.stderr, False
+        shutil.rmtree(user_path)
+        return e.stderr, False, []
     except Exception:
-        return None, False
+        shutil.rmtree(user_path)
+        return None, False, []
     with open(f"Chipollino/resources/{session_key}report.tex", 'r', encoding='utf-8') as tex_file:
         tex_content = tex_file.read()
+    graphs = {}
+    files = os.listdir(user_path)
+    for file in files:
+        if re.match(r'\d+.txt', file):
+            with open(f"{user_path}/{file}", 'r', encoding='utf-8') as graph:
+                graphs[f"{session_key}/{file}"] = graph.read()
     os.remove(f"Chipollino/resources/{session_key}report.tex")
     os.remove(f"Chipollino/resources/{session_key}rendered_report.tex")
-    os.remove(f"Chipollino/{session_key}test.txt")
-    return tex_content, True
+    shutil.rmtree(user_path)
+    return tex_content, True, graphs
 
 def get_pdf(session_key="0"):
     file_path = f'Chipollino/{session_key}rendered_report.pdf'
@@ -38,8 +50,8 @@ def get_pdf(session_key="0"):
     else:
         return None
 
-def parse_tex(text, session_key = "0"):
-    res = tex_parser.parse_tex(text, session_key)
+def parse_tex(text, graph_list, session_key = "0"):
+    res = tex_parser.parse_tex(text, graph_list, session_key)
     return res
 
 def create_tex_svg(text, session_key="0"):

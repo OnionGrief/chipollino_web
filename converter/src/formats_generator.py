@@ -28,9 +28,8 @@ def to_dot(graph: Graph):
 def from_dsl(text):
     nodes, edges = {}, []
     text = text.strip()
-    
     def parse_nodes(nlist):
-        for line in nlist.split('\n'):
+        for line in [l for l in nlist.splitlines() if l and not l.isspace()]:
             line = line.strip()
             node_pattern = r'(?P<id>\S+)(?:\s+label\s*=\s*(?P<label>\S+))?(?:\s+(?P<final>final))?(?:\s+(?P<initial>initial_state))?\s*;'
             node_match = re.match(node_pattern, line)
@@ -52,14 +51,17 @@ def from_dsl(text):
                 nodes[n] = {"id": n, "label": n, "is_double": False, "is_init": False}
 
     if text.startswith("NFA"):
-        nlist, elist = re.match(r"NFA(.*)...(.*)", text).groups()
+        pattern = re.compile(r'NFA(.*)\.\.\.(.*)$', re.DOTALL)
+        nlist, elist = pattern.match(text).groups()
         parse_nodes(nlist)
-        for line in elist.split('\n'):
+        for line in [l for l in elist.splitlines() if l and not l.isspace()]:
+            print(line.strip().split()[:-1])
             add_edge(*line.strip().split()[:-1])
     elif text.startswith("MFA"):
-        nlist, elist = re.match(r"NFA(.*)...(.*)", text).groups()
+        pattern = re.compile(r'MFA(.*)\.\.\.(.*)$', re.DOTALL)
+        nlist, elist = pattern.match(text).groups()
         parse_nodes(nlist)
-        for line in elist.split('\n'):
+        for line in [l for l in elist.splitlines() if l and not l.isspace()]:
             edge_pattern = r'(?P<source>\S+)\s+(?P<target>\S+)\s+(?P<label>.*\S)\s*;'
             edge_match = re.match(edge_pattern, line)
             add_edge(edge_match.group('source'), edge_match.group('target'), edge_match.group('label'))

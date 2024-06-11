@@ -2,6 +2,7 @@ import re
 import latex2mathml.converter
 from converter.models import Graph
 from converter.src import chipollino_funcs, formats_generator
+import graphviz
 
 # получить часть файла от begin до end_mark
 def get_content(text, begin, end_mark="}"):
@@ -93,7 +94,7 @@ def parse_tikz(text):
 
     return Graph(nodes=nodes.values(), edges=edges)
 
-def parse_tex(text, session_key = "0"):
+def parse_tex(text, graph_list, session_key = "0"):
     formats = []
     svg_graph = ""
 
@@ -101,58 +102,60 @@ def parse_tex(text, session_key = "0"):
 
     text = re.sub(r"(?<!\\)\\ ", " ", text)
     text = text.replace("\\\\", "\n")
-    text = re.sub(r"(?<!\\)%.*\n", "\n", text)
+    text = re.sub(r"(?<!\\)(?<!%)%[^%].*\n", "\n", text)
     text = re.sub(r"\\begin{frame}.*\n", "", text)
     text = re.sub(r"\\end{frame}\n", "", text)
 
-    lines = text.splitlines()
+    lines = [l for l in text.splitlines() if l and not l.isspace()]
     i = 0
-    while i < len(lines):
+    def get_tikzpicture(i):
         line = lines[i]
-        if not line.isspace() and line:
-            if re.search(r"\\section{.*}", line):
-                formats.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
-            elif "\\begin{tikzpicture}" in line:
-                if "\\datavisualization" in lines[i+1]:
-                    plot_tex = line
-                    while "\\end{tikzpicture}" not in line and i < len(lines):
-                        i += 1
-                        line = lines[i]
-                        plot_tex += '\n' + line
-                    
-                    i += 1
-                    line = lines[i]
-                    svg_plot = chipollino_funcs.create_tex_svg(plot_tex, session_key=session_key)
-                    formats.append({'type': 'plot', 'res': svg_plot})
-                else:
-                    graph_tex = line
-                    while "\\end{tikzpicture}" not in line and i < len(lines):
-                        i += 1
-                        line = lines[i]
-                        graph_tex += '\n' + line
-                    i+=1
-                    graph_tex += lines[i]
-                    format_list = [{'name': 'LaTeX', 'txt': graph_tex}]
-                    graph = parse_tikz(graph_tex)
-                    format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
-                    format_list.append({'name': 'DSL', 'txt': formats_generator.to_dsl(graph)})
-                    format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
-                    svg_graph = chipollino_funcs.create_tex_svg(graph_tex, session_key=session_key)
-                    formats.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
-            elif "$\\begin{array}" in line:
-                table_tex = line
-                while "\end{array}$" not in line and i < len(lines):
-                    i += 1
-                    line = lines[i]
-                    table_tex += '\n' + line
-                i+=1
-                table_tex += lines[i]
-                svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
-                formats.append({'type': 'table', 'res': svg_table})
+        graph_tex = line
+        while "\\end{tikzpicture}" not in line and i < len(lines):
+            i += 1
+            line = lines[i]
+            graph_tex += '\n' + line
+        graph_tex += lines[i]
+        return graph_tex, i
+    while i < len(lines):
+        line = lines[i].strip()
+        if re.search(r"\\section{.*}", line):
+            formats.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
+        elif re.search(r"%%.*\d+\.txt", line) and "\\begin{tikzpicture}" in lines[i+1]:
+            graph_path = re.match(r"%%(.*\d+\.txt)", line).group(1)
+            i += 1
+            graph_tex, i = get_tikzpicture(i)
+            format_list = [{'name': 'LaTeX', 'txt': graph_tex}]
+            # graph = parse_tikz(graph_tex)
+            graph = formats_generator.from_dsl(graph_list[graph_path])
+            dot_source = formats_generator.to_dot(graph)
+            format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
+            format_list.append({'name': 'DSL', 'txt': graph_list[graph_path]})
+            format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
+            svg_graph = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
+            formats.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
+        elif "\\begin{tikzpicture}" in line:
+            if "\\datavisualization" in lines[i+1]:
+                plot_tex, i = get_tikzpicture(i)
+                svg_plot = chipollino_funcs.create_tex_svg(plot_tex, session_key=session_key)
+                formats.append({'type': 'plot', 'res': svg_plot})
             else:
-                line = re.sub(r"\\\\", "\n", line)
-                line = apply_mathml(line)
-                formats.append({'type': 'text', 'res': create_tag('p', line)})
+                graph_tex, i = get_tikzpicture(i)
+                svg_graph = chipollino_funcs.create_tex_svg(graph_tex, session_key=session_key)
+        elif "$\\begin{array}" in line:
+            table_tex = line
+            while "\end{array}$" not in line and i < len(lines):
+                i += 1
+                line = lines[i]
+                table_tex += '\n' + line
+            i+=1
+            table_tex += lines[i]
+            svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
+            formats.append({'type': 'table', 'res': svg_table})
+        else:
+            line = re.sub(r"\\\\", "\n", line)
+            line = apply_mathml(line)
+            formats.append({'type': 'text', 'res': create_tag('p', line)})
         i += 1
 
     return formats

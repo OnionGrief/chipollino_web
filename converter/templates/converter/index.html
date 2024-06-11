@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+<div id="loading-spinner"></div>
 
 {% include 'converter/input.html' %}
 
@@ -20,6 +21,11 @@
 <a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
 
 <script>
+    document.getElementById('chipollino-form').addEventListener('submit', (event) => {
+        const loader = document.getElementById('loading-spinner');
+        loader.style.display = 'block'; // Показать анимацию загрузки
+    });
+
     const generatorSelector = document.getElementById('generator-selector');
     generatorSelector.addEventListener('change', (event) => {
         const selectedValue = event.target.value;

@@ -4,11 +4,16 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/automaton_view.css' %}">
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
 
+<div id="loading-spinner"></div>
+
 <a href="{% url 'converter:index' %}">Назад</a>
+
+{% csrf_token %}
 
 <p class="large_text">Result</p>
 <pre>{{test}}</pre>
@@ -34,7 +39,7 @@
         {% include 'converter/automaton_view.html' with format_list=elem.res.formats svg_graph=elem.res.svg %}
         {% elif elem.type == 'table' or elem.type == 'plot' %}
         <div style="width: 50%">
-        {{elem.res|safe}}
+            {{elem.res|safe}}
         </div>
         {% else %}
         {{elem.res|safe}}
@@ -47,6 +52,8 @@
 {% endif %}
 
 <script>
+    const spinner = document.getElementById('loading-spinner');
+
     const blockSelector = document.getElementById('block-selector');
     blockSelector.addEventListener('change', (event) => {
         const selectedValue = event.target.value;
@@ -71,23 +78,52 @@
     automata.forEach(element => {
         const blocks = element.querySelectorAll('.automaton_format');
         for (const block of blocks) {
-            if (block.dataset.value == 'LaTeX') {
+            if (block.dataset.value == 'DSL') {
                 block.style.display = 'block';
             }
         }
-        element.querySelectorAll('.format-selector').forEach(selector => {
-            selector.addEventListener('change', (event) => {
-                const selectedValue = event.target.value;
-                const blocks = element.querySelectorAll('.automaton_format');
+        element.querySelector('.format-selector').addEventListener('change', (event) => {
+            const selectedValue = event.target.value;
+            const blocks = element.querySelectorAll('.automaton_format');
 
-                for (const block of blocks) {
-                    if (block.dataset.value == selectedValue) {
-                        block.style.display = 'block';
-                    } else {
-                        block.style.display = 'none';
-                    }
+            for (const block of blocks) {
+                if (block.dataset.value == selectedValue) {
+                    block.style.display = 'block';
+                } else {
+                    block.style.display = 'none';
                 }
-            })
+            }
+        })
+
+        element.querySelector('.get_tikz_graph').addEventListener('click', (event) => {
+            // анимация загрузки
+            spinner.style.display = 'block';
+
+            tex_content = "";
+            for (const block of element.querySelectorAll('.automaton_format')) {
+                if (block.dataset.value == 'LaTeX') {
+                    tex_content = block.textContent;
+                }
+            }
+            fetch('/tikz_view/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]')
+                            .value
+                    },
+                    body: JSON.stringify({
+                        "tex_content": tex_content
+                    })
+                })
+                .then(response => response.text())
+                .then(data => {
+                    element.querySelector('.automaton_svg').innerHTML = data;
+                })
+                .catch(error => console.error('Error getting SVG from TIKZ:', error))
+                .finally(() => {
+                    spinner.style.display = 'none';
+                });
         });
     });
 </script>

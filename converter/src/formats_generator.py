@@ -55,7 +55,6 @@ def from_dsl(text):
         nlist, elist = pattern.match(text).groups()
         parse_nodes(nlist)
         for line in [l for l in elist.splitlines() if l and not l.isspace()]:
-            print(line.strip().split()[:-1])
             add_edge(*line.strip().split()[:-1])
     elif text.startswith("MFA"):
         pattern = re.compile(r'MFA(.*)\.\.\.(.*)$', re.DOTALL)

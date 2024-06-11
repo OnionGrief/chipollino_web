@@ -71,9 +71,9 @@ def create_tex_svg(text, session_key="0"):
         file_name = f'{session_key}_svg'
         with open(f'{folder_name}/{file_name}.tex', 'w', encoding='utf-8') as f:
             f.write(tex_str)
-        print('rendering graph image..')
+        # print('rendering graph image..')
         subprocess.run(f'latex {file_name}.tex', check=True, shell=True, stdout=subprocess.PIPE, cwd=folder_name)
-        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True, cwd=folder_name)
+        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True, capture_output=True,cwd=folder_name)
         with open(f'{folder_name}/{file_name}.svg', 'r', encoding='utf-8') as svg_file:
             svg_str = svg_file.read()
             svg_str = re.sub(r"width='[^']*' height='[^']*'" , "width='100%'' height='100%'", svg_str)

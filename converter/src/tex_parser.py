@@ -58,6 +58,10 @@ def derender_regexpstr(text):
 def create_tag(tag, text):
     return f'<{tag}>{text}</{tag}>'
 
+def dot_to_svg(dot_source):
+    svg_txt = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
+    return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%" height="100%"', svg_txt)
+
 def parse_tikz(text):
     text = derender_regexpstr(text)
     lines = text.split("\n")
@@ -96,7 +100,6 @@ def parse_tikz(text):
 
 def parse_tex(text, graph_list, session_key = "0"):
     formats = []
-    svg_graph = ""
 
     text = get_content(text, '\maketitle', '\end{document}')
 
@@ -110,12 +113,12 @@ def parse_tex(text, graph_list, session_key = "0"):
     i = 0
     def get_tikzpicture(i):
         line = lines[i]
-        graph_tex = line
+        graph_tex = ""
         while "\\end{tikzpicture}" not in line and i < len(lines):
+            graph_tex += line + '\n'
             i += 1
             line = lines[i]
-            graph_tex += '\n' + line
-        graph_tex += lines[i]
+        graph_tex += line
         return graph_tex, i
     while i < len(lines):
         line = lines[i].strip()
@@ -125,14 +128,15 @@ def parse_tex(text, graph_list, session_key = "0"):
             graph_path = re.match(r"%%(.*\d+\.txt)", line).group(1)
             i += 1
             graph_tex, i = get_tikzpicture(i)
-            format_list = [{'name': 'LaTeX', 'txt': graph_tex}]
             # graph = parse_tikz(graph_tex)
             graph = formats_generator.from_dsl(graph_list[graph_path])
             dot_source = formats_generator.to_dot(graph)
+            
+            format_list = [{'name': 'DSL', 'txt': graph_list[graph_path]}]
             format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
-            format_list.append({'name': 'DSL', 'txt': graph_list[graph_path]})
+            format_list.append({'name': 'LaTeX', 'txt': graph_tex})
             format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
-            svg_graph = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
+            svg_graph = dot_to_svg(dot_source)
             formats.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
         elif "\\begin{tikzpicture}" in line:
             if "\\datavisualization" in lines[i+1]:
@@ -142,6 +146,7 @@ def parse_tex(text, graph_list, session_key = "0"):
             else:
                 graph_tex, i = get_tikzpicture(i)
                 svg_graph = chipollino_funcs.create_tex_svg(graph_tex, session_key=session_key)
+                formats.append({'type': 'automaton', 'res': {'formats': [{'name': 'LaTeX', 'txt': graph_tex}], 'svg': svg_graph}})
         elif "$\\begin{array}" in line:
             table_tex = line
             while "\end{array}$" not in line and i < len(lines):

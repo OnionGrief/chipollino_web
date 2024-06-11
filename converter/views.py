@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import os
+import json
 from .models import TemporaryFile
 
 def index(request):
@@ -33,6 +34,19 @@ def pdf_view(request):
             return HttpResponse(pdf_file, content_type='application/pdf')
     else:
         return HttpResponse("PDF file not found", status=404)
+
+
+def tikz_view(request):
+    if request.method == 'POST':
+        try:
+            tex_content = json.loads(request.body).get('tex_content', '\\begin{tikzpicture}\n\\end{tikzpicture}')
+            svg_content = chipollino_funcs.create_tex_svg(tex_content, request.session.session_key)
+            if svg_content:
+                    return HttpResponse(svg_content, content_type='image/svg+xml')
+            else:
+                return HttpResponse("Can't create svg from TeX", status=404)
+        except Exception:
+            return HttpResponse("Can't load tikz_view", status=404)
 
 def get_random_object(request, object_type):
     if request.method == 'GET':

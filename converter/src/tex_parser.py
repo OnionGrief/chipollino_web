@@ -122,7 +122,7 @@ def parse_tex(text, session_key = "0"):
                     
                     i += 1
                     line = lines[i]
-                    svg_plot = chipollino_funcs.create_svg(plot_tex, session_key=session_key)
+                    svg_plot = chipollino_funcs.create_tex_svg(plot_tex, session_key=session_key)
                     formats.append({'type': 'plot', 'res': svg_plot})
                 else:
                     graph_tex = line
@@ -137,7 +137,7 @@ def parse_tex(text, session_key = "0"):
                     format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
                     format_list.append({'name': 'DSL', 'txt': formats_generator.to_dsl(graph)})
                     format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
-                    svg_graph = chipollino_funcs.create_svg(graph_tex, session_key=session_key)
+                    svg_graph = chipollino_funcs.create_tex_svg(graph_tex, session_key=session_key)
                     formats.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
             elif "$\\begin{array}" in line:
                 table_tex = line
@@ -147,7 +147,7 @@ def parse_tex(text, session_key = "0"):
                     table_tex += '\n' + line
                 i+=1
                 table_tex += lines[i]
-                svg_table = chipollino_funcs.create_svg(table_tex, session_key=session_key)
+                svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
                 formats.append({'type': 'table', 'res': svg_table})
             else:
                 line = re.sub(r"\\\\", "\n", line)

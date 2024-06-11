@@ -42,7 +42,7 @@ def parse_tex(text, session_key = "0"):
     res = tex_parser.parse_tex(text, session_key)
     return res
 
-def create_svg(text, session_key="0"):
+def create_tex_svg(text, session_key="0"):
     svg_str = ""
     try:
         tex_str = ""

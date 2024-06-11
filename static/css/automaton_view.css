@@ -2,7 +2,7 @@
     padding: 5px;
     display: grid;
     grid-template-columns: 1fr 2fr;
-    height: 300px;
+    height: auto;
     margin: 20px;
     border: 1px solid #e6e6e6;
     border-radius: 10px;
@@ -27,7 +27,14 @@
 }
 
 .automaton_image {
-    height: inherit;
+    position: relative;
+    height: auto;
+}
+
+.change-image-btn {
+    position: absolute;
+    top: -35px;
+    right: 10px;
 }
 
 #htmlres p {

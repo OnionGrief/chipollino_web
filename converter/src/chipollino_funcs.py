@@ -14,7 +14,7 @@ def run_interpreter(text, session_key="0"):
     with open(f'Chipollino/{session_key}/test.txt', 'w', encoding='utf-8') as f:
         f.write(text)
     try:
-        subprocess.run([env.CHIPOLLINO_BINARY, f'{session_key}/test.txt', session_key], check=True, shell=True, capture_output=True, text=True, cwd='Chipollino')
+        subprocess.run(f"{env.CHIPOLLINO_BINARY} {session_key}/test.txt {session_key}", check=True, shell=True, capture_output=True, text=True, cwd='Chipollino')
     except subprocess.CalledProcessError as e:
         shutil.rmtree(user_path)
         return e.stderr, False, []
@@ -90,7 +90,7 @@ def create_tex_svg(text, session_key="0"):
 def get_random_object(type):
     try:
         os.chdir('Chipollino')
-        res = subprocess.run([env.CHIPOLLINO_GENERATOR_BINARY, type, 'false'], stdout=subprocess.PIPE, check=True, shell=True)
+        res = subprocess.run(f"{env.CHIPOLLINO_GENERATOR_BINARY} {type} false", stdout=subprocess.PIPE, check=True, shell=True)
         os.chdir('../')
         output = res.stdout.decode("utf-8")
         return re.sub(r'Input generator\s*', '', output)

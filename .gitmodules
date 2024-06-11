@@ -1,3 +1,6 @@
 [submodule "Chipollino"]
 	path = Chipollino
 	url = https://github.com/OnionGrief/Chipollino
+[submodule "config"]
+	path = config
+	url = https://github.com/OnionGrief/Automatic-Chipollino-Update

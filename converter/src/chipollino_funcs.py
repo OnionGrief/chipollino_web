@@ -10,17 +10,16 @@ def run_interpreter(text, session_key="0"):
     with open(f'Chipollino/{session_key}test.txt', 'w', encoding='utf-8') as f:
         f.write(text)
     try:
-        os.chdir('Chipollino')
-        subprocess.run([env.CHIPOLLINO_BINARY, f'{session_key}test.txt', session_key], check=True, shell=True, capture_output=True, text=True)
-        os.chdir('../')
+        subprocess.run([env.CHIPOLLINO_BINARY, f'{session_key}test.txt', session_key], check=True, shell=True, capture_output=True, text=True, cwd='Chipollino')
     except subprocess.CalledProcessError as e:
-        os.chdir('../')
         return e.stderr, False
     except Exception:
-        os.chdir('../')
         return None, False
     with open(f"Chipollino/resources/{session_key}report.tex", 'r', encoding='utf-8') as tex_file:
         tex_content = tex_file.read()
+    os.remove(f"Chipollino/resources/{session_key}report.tex")
+    os.remove(f"Chipollino/resources/{session_key}rendered_report.tex")
+    os.remove(f"Chipollino/{session_key}test.txt")
     return tex_content, True
 
 def get_pdf(session_key="0"):
@@ -41,8 +40,6 @@ def get_pdf(session_key="0"):
 
 def parse_tex(text, session_key = "0"):
     res = tex_parser.parse_tex(text, session_key)
-    os.remove(f"Chipollino/resources/{session_key}report.tex")
-    os.remove(f"Chipollino/resources/{session_key}rendered_report.tex")
     return res
 
 def create_svg(text, session_key="0"):
@@ -59,25 +56,22 @@ def create_svg(text, session_key="0"):
         folder_name = 'tmp'
         if not os.path.exists(folder_name):
             os.mkdir(folder_name)
-        os.chdir(folder_name)
         file_name = f'{session_key}_svg'
-        with open(f'{file_name}.tex', 'w', encoding='utf-8') as f:
+        with open(f'{folder_name}/{file_name}.tex', 'w', encoding='utf-8') as f:
             f.write(tex_str)
         print('rendering graph image..')
-        subprocess.run(f'latex {file_name}.tex', check=True, shell=True, stdout=subprocess.PIPE)
-        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True)
-        with open(f'{file_name}.svg', 'r', encoding='utf-8') as svg_file:
+        subprocess.run(f'latex {file_name}.tex', check=True, shell=True, stdout=subprocess.PIPE, cwd=folder_name)
+        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True, cwd=folder_name)
+        with open(f'{folder_name}/{file_name}.svg', 'r', encoding='utf-8') as svg_file:
             svg_str = svg_file.read()
             svg_str = re.sub(r"width='[^']*' height='[^']*'" , "width='100%'' height='100%'", svg_str)
         
-        files = os.listdir()
+        files = os.listdir(folder_name)
         del_files = [f for f in files if f.startswith(f"{file_name}")]
         for file in del_files:
+            file = os.path.join(folder_name, file)
             os.remove(file)
-
-        os.chdir('../')
     except subprocess.CalledProcessError:
-        os.chdir('../')
         return None
     return svg_str
 

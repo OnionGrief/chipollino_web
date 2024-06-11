@@ -1,5 +1,15 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
+
+# fs = FileSystemStorage(location='Chipollino/report.pdf')
+
+# class File(models.Model):
+#     file = models.FileField(storage=fs)
+
+#     def save(self, *args, **kwargs):
+#         super().save(*args, **kwargs)
+#         self.file.add_file(self.file.path)
+
 class TemporaryFile(models.Model):
     path = models.TextField(primary_key=True)
     session_key = models.CharField(max_length=40)

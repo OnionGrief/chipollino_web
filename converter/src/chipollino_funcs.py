@@ -43,10 +43,11 @@ def get_pdf(session_key="0"):
     del_files = [f for f in files if f.startswith(session_key) and f != f'{session_key}rendered_report.pdf']
     for file in del_files:
         os.remove('Chipollino/' + file)
-    
     if os.path.exists(file_path):
         with open(file_path, 'rb') as pdf_file:
-            return pdf_file.read(), file_path
+            pdf_binary = pdf_file.read()
+        os.remove(file_path)
+        return pdf_binary
     else:
         return None
 
@@ -74,6 +75,7 @@ def create_tex_svg(text, session_key="0"):
         # print('rendering graph image..')
         subprocess.run(f'latex {file_name}.tex', check=True, shell=True, stdout=subprocess.PIPE, cwd=folder_name)
         subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True, capture_output=True,cwd=folder_name)
+        
         with open(f'{folder_name}/{file_name}.svg', 'r', encoding='utf-8') as svg_file:
             svg_str = svg_file.read()
             svg_str = re.sub(r"width='[^']*' height='[^']*'" , "width='100%'' height='100%'", svg_str)
@@ -89,13 +91,10 @@ def create_tex_svg(text, session_key="0"):
 
 def get_random_object(type):
     try:
-        os.chdir('Chipollino')
-        res = subprocess.run(f"{env.CHIPOLLINO_GENERATOR_BINARY} {type} false", stdout=subprocess.PIPE, check=True, shell=True)
-        os.chdir('../')
+        res = subprocess.run(f"{env.CHIPOLLINO_GENERATOR_BINARY} {type} false", stdout=subprocess.PIPE, check=True, shell=True, cwd='Chipollino')
         output = res.stdout.decode("utf-8")
         return re.sub(r'Input generator\s*', '', output)
     # except subprocess.CalledProcessError:
     except Exception:
-        os.chdir('../')
         return None
     

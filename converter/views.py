@@ -28,8 +28,7 @@ def run_interpreter(request):
                 return render(request, 'converter/result.html', {'test': "Converter error"})
 
 def pdf_view(request):
-    pdf_file, file_path = chipollino_funcs.get_pdf(request.session.session_key)
-    os.remove(file_path)
+    pdf_file = chipollino_funcs.get_pdf(request.session.session_key)
     if pdf_file:
             return HttpResponse(pdf_file, content_type='application/pdf')
     else:

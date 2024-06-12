@@ -41,7 +41,7 @@
         fetch('/generator/' + 'Test')
             .then(response => response.text())
             .then(data => {
-                document.getElementById('input-txt').innerHTML = data;
+                document.getElementById('input-txt').value = data;
             });
     });
 </script>

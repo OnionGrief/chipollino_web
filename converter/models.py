@@ -27,3 +27,8 @@ class Graph(models.Model):
     def __str__(self):
         return self.name
 
+class Table:
+    def __init__(self, columns, data):
+        self.columns = columns
+        self.data = data
+

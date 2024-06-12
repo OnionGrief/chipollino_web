@@ -36,8 +36,8 @@ def run_interpreter(text, session_key="0"):
 
 def get_pdf(session_key="0"):
     file_path = f'Chipollino/{session_key}rendered_report.pdf'
-    file_in_db, _ = TemporaryFile.objects.get_or_create(path=file_path, session_key=session_key)
-    file_in_db.save()
+    # file_in_db, _ = TemporaryFile.objects.get_or_create(path=file_path, session_key=session_key)
+    # file_in_db.save()
 
     files = os.listdir('Chipollino')
     del_files = [f for f in files if f.startswith(session_key) and f != f'{session_key}rendered_report.pdf']

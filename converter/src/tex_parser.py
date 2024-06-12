@@ -46,6 +46,7 @@ def remove_substring_until_none(string, substring):
 
 def derender_regexpstr(text):
     text = re.sub(r'\\empt', 'ε', text)
+    text = re.sub(r'eps', 'ε', text)
     text = re.sub(r'\\hspace\*?{[^}]*}', "", text)
     text = re.sub(r'\\pgfsetfillopacity{[^}]*}{', "-pgfsetfillopacity{", text)
     text = re.sub(r'\\pgfsetfillopacity{[^}]*}', "", text)
@@ -100,7 +101,7 @@ def parse_tikz(text):
     return Graph(nodes=nodes.values(), edges=edges)
 
 def parse_tex(text, object_list, session_key = "0"):
-    formats = []
+    log_list = []
 
     text = get_content(text, '\maketitle', '\end{document}')
 
@@ -124,20 +125,20 @@ def parse_tex(text, object_list, session_key = "0"):
     while i < len(lines):
         line = lines[i].strip()
         if re.search(r"\\section{.*}", line):
-            formats.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
+            log_list.append({'type': 'section', 'res': create_tag('h3', re.findall(r"\\section{(.*)}", line)[0] + ':')})
         elif "\\begin{tikzpicture}" in line:
             if "\\datavisualization" in lines[i+1]:
                 plot_tex, i = get_content_until("\\end{tikzpicture}", i)
                 svg_plot = chipollino_funcs.create_tex_svg(plot_tex, session_key=session_key)
-                formats.append({'type': 'plot', 'res': svg_plot})
+                log_list.append({'type': 'plot', 'res': svg_plot})
             else:
                 graph_tex, i = get_content_until("\\end{tikzpicture}", i)
                 svg_graph = chipollino_funcs.create_tex_svg(graph_tex, session_key=session_key)
-                formats.append({'type': 'automaton', 'res': {'formats': [{'name': 'LaTeX', 'txt': graph_tex}], 'svg': svg_graph}})
+                log_list.append({'type': 'automaton', 'res': {'formats': [{'name': 'LaTeX', 'txt': graph_tex}], 'svg': svg_graph}})
         elif "$\\begin{array}" in line:
             table_tex, i = get_content_until("\end{array}$", i)
             svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
-            formats.append({'type': 'table', 'res': svg_table})
+            log_list.append({'type': 'table', 'res': svg_table})
         elif re.search(r"%%.*\d+\.txt", line):
             if "\\begin{tikzpicture}" in lines[i+1]:
                 graph_path = re.match(r"%%(.*\d+\.txt)", line).group(1)
@@ -152,17 +153,22 @@ def parse_tex(text, object_list, session_key = "0"):
                 format_list.append({'name': 'LaTeX', 'txt': graph_tex})
                 format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
                 svg_graph = dot_to_svg(dot_source)
-                formats.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
+                log_list.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
             elif "$\\begin{array}" in lines[i+1]:
                 table_path = re.match(r"%%(.*\d+\.txt)", line).group(1)
                 i += 1
                 table_tex, i = get_content_until("\end{array}$", i)
-                svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
-                formats.append({'type': 'table', 'res': svg_table})
-                formats.append({'type': 'text', 'res': create_tag('pre', object_list[table_path])})
+
+                table = formats_generator.from_csv(object_list[table_path])
+
+                format_list = [{'name': 'CSV', 'txt': object_list[table_path]}]
+                format_list.append({'name': 'LaTeX', 'txt': table_tex})
+                log_list.append({'type': 'table', 'res': {'formats': format_list, 'data': table}})
+                # svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
+                # log_list.append({'type': 'text', 'res': create_tag('pre', object_list[table_path])})
         else:
             line = line.replace("\\\\", " ")
             line = apply_mathml(line)
-            formats.append({'type': 'text', 'res': create_tag('p', line)})
+            log_list.append({'type': 'text', 'res': create_tag('p', line)})
         i += 1
-    return formats
+    return log_list

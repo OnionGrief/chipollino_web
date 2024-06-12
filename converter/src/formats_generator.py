@@ -1,6 +1,7 @@
-from converter.models import Graph
+from converter.models import Graph, Table
 import json
 import re
+from converter.src import tex_parser
 
 def to_json(graph: Graph):
     return json.dumps({"nodes": list(graph.nodes), "edges": graph.edges}, indent=2)
@@ -66,3 +67,17 @@ def from_dsl(text):
             add_edge(edge_match.group('source'), edge_match.group('target'), edge_match.group('label'))
 
     return Graph(nodes=nodes.values(), edges=edges)
+
+
+def from_csv(text):
+    columns, data = [], []
+    lines = text.splitlines()
+    for cell in lines[0].split(',')[1:]:
+        columns.append(tex_parser.derender_regexpstr(cell))
+    for r in lines[1:]:
+        r = [tex_parser.derender_regexpstr(cell) for cell in r.split(',')]
+        row_data = []
+        for cell in r[1:]:
+            row_data.append(cell)
+        data.append({"first": r[0], "data": row_data})
+    return Table(columns, data)

@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/automaton_view.css' %}">
+<link rel="stylesheet" href="{% static 'css/object_view.css' %}">
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}
 
@@ -37,7 +37,9 @@
         {% for elem in result_list %}
         {% if elem.type == 'automaton' %}
         {% include 'converter/automaton_view.html' with format_list=elem.res.formats svg_graph=elem.res.svg %}
-        {% elif elem.type == 'table' or elem.type == 'plot' %}
+        {% elif elem.type == 'table' %}
+        {% include 'converter/table_view.html' with format_list=elem.res.formats table=elem.res.data %}
+        {% elif elem.type == 'plot' %}
         <div style="width: 50%">
             {{elem.res|safe}}
         </div>
@@ -74,17 +76,11 @@
     downloadLink.href = "data:application/tex;charset=utf-8," + encodeURIComponent(tex_content);
 
 
-    const automata = document.querySelectorAll('.automaton_view');
+    const automata = document.querySelectorAll('.object_view');
     automata.forEach(element => {
-        const blocks = element.querySelectorAll('.automaton_format');
-        for (const block of blocks) {
-            if (block.dataset.value == 'DSL') {
-                block.style.display = 'block';
-            }
-        }
         element.querySelector('.format-selector').addEventListener('change', (event) => {
             const selectedValue = event.target.value;
-            const blocks = element.querySelectorAll('.automaton_format');
+            const blocks = element.querySelectorAll('.object_format');
 
             for (const block of blocks) {
                 if (block.dataset.value == selectedValue) {
@@ -95,12 +91,12 @@
             }
         })
 
-        element.querySelector('.get_tikz_graph').addEventListener('click', (event) => {
+        element.querySelector('.get_tex_view').addEventListener('click', (event) => {
             // анимация загрузки
             spinner.style.display = 'block';
 
             tex_content = "";
-            for (const block of element.querySelectorAll('.automaton_format')) {
+            for (const block of element.querySelectorAll('.object_format')) {
                 if (block.dataset.value == 'LaTeX') {
                     tex_content = block.textContent;
                 }
@@ -118,9 +114,10 @@
                 })
                 .then(response => response.text())
                 .then(data => {
-                    element.querySelector('.automaton_svg').innerHTML = data;
+                    element.querySelector('.object_figure').innerHTML = data;
+                    element.querySelector('.get_tex_view').disabled = true;
                 })
-                .catch(error => console.error('Error getting SVG from TIKZ:', error))
+                .catch(error => console.error('Error getting SVG from TEX:', error))
                 .finally(() => {
                     spinner.style.display = 'none';
                 });

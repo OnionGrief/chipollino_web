@@ -1,4 +1,4 @@
-.automaton_view {
+.object_view {
     padding: 5px;
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -8,30 +8,32 @@
     border-radius: 10px;
 }
 
-.automaton_txt {
+.object_txt {
     padding: 10px;
     border-radius: 8px;
     background-color: #e6e6e6;
     overflow: auto;
 }
 
-.automaton_txt_header {
+.object_txt_header {
     padding: 10px;
     background-color: #eeeeee;
     display: flex;
     justify-content: space-around;
 }
 
-.automaton_format {
+.object_format {
     padding: 10px;
 }
 
-.automaton_image {
+.object_image {
     position: relative;
     height: auto;
+    display: flex;
+    justify-content: center;
 }
 
-.get_tikz_graph {
+.get_tex_view {
     position: absolute;
     top: -35px;
     right: 10px;
@@ -40,4 +42,26 @@
 #htmlres p {
     margin-block-start: 3px;
     margin-block-end: 3px;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #f0f0f0;
+}
+
+th,
+td {
+    padding: 8px;
+    text-align: center;
+}
+
+th.top {
+    border-bottom: 1px solid rgb(100, 100, 100);
+}
+
+th.left {
+    border-right: 1px solid rgb(100, 100, 100);
 }

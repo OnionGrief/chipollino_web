@@ -2,8 +2,6 @@
 <div class="object_view">
     <div class="object_txt">
         <div class="object_txt_header">
-            <button>Save to storage</button>
-            <!-- <button>Download</button> -->
             <div style="padding: 0;">
                 format:
 
@@ -17,7 +15,7 @@
         </div>
 
         {% for format in format_list %}
-        {% if format.name == 'DSL' %}
+        {% if format.name == 'CSV' %}
         <pre class="object_format" data-value="{{format.name}}" style="display: block;">{{format.txt}}</pre>
         {% else %}
         <pre class="object_format" data-value="{{format.name}}" style="display: none;">{{format.txt}}</pre>
@@ -28,7 +26,22 @@
     <div class="object_image">
         <button class="get_tex_view">Render LaTeX version</button>
         <div class="object_figure">
-            {{svg_graph|safe}}
+            <table>
+                    <tr>
+                        <th class="top left"></th>
+                        {% for column in table.columns %}
+                        <th class="top">{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for row in table.data %}
+                    <tr>
+                        <th class="left">{{ row.first }}</th>
+                        {% for cell in row.data %}
+                        <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+            </table>
         </div>
     </div>
 </div>

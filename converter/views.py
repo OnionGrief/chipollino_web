@@ -16,7 +16,8 @@ def run_interpreter(request):
     session_key = request.session.session_key
     if request.method == 'POST':
         text = request.POST['input-txt']
-        running_res, ok, graph_list = chipollino_funcs.run_interpreter(text, session_key)
+        running_res, rendered_tex, ok, graph_list = chipollino_funcs.run_interpreter(text, session_key)
+        request.session['rendered_tex'] = rendered_tex
         if ok:
             tex_file = running_res
             result_list = chipollino_funcs.parse_tex(tex_file, graph_list, session_key = session_key)
@@ -27,18 +28,18 @@ def run_interpreter(request):
             else:
                 return render(request, 'converter/result.html', {'test': "Converter error"})
 
-def pdf_view(request):
-    pdf_file = chipollino_funcs.get_pdf(request.session.session_key)
+def get_pdf(request):
+    pdf_file = chipollino_funcs.get_pdf(request.session.session_key, request.session["rendered_tex"])
     if pdf_file:
-            return HttpResponse(pdf_file, content_type='application/pdf')
+        return HttpResponse(pdf_file, content_type='application/pdf')
     else:
         return HttpResponse("PDF file not found", status=404)
 
 
-def tikz_view(request):
+def tex_view(request):
     if request.method == 'POST':
         try:
-            tex_content = json.loads(request.body).get('tex_content', '\\begin{tikzpicture}\n\\end{tikzpicture}')
+            tex_content = json.loads(request.body).get('tex_content', '')
             svg_content = chipollino_funcs.create_tex_svg(tex_content, request.session.session_key)
             if svg_content:
                     return HttpResponse(svg_content, content_type='image/svg+xml')

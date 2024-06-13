@@ -35,7 +35,10 @@ def apply_mathml(text):
     text = derender_regexpstr(text)
     def replace_substring(match):
         return latex2mathml.converter.convert(match.group(1))
-    return re.sub(r'\$([^\$]*)\$', replace_substring, text)
+    text = re.sub(r'\$([^\$]*)\$', replace_substring, text)
+    text = re.sub(r'\\\[([^\]]*)\\\]', replace_substring, text)
+    text = text.replace("\\textasciicircum ", "^")
+    return text
 
 
 def remove_substring_until_none(string, substring):
@@ -45,6 +48,10 @@ def remove_substring_until_none(string, substring):
     return string
 
 def derender_regexpstr(text):
+    text = text.replace("\\\\", " ")
+    text = text.replace("\\%", "%")
+    text = text.replace("\\{", "{")
+    text = text.replace("\\}", "}")
     text = re.sub(r'\\empt', 'ε', text)
     text = re.sub(r'eps', 'ε', text)
     text = re.sub(r'\\hspace\*?{[^}]*}', "", text)
@@ -62,7 +69,7 @@ def create_tag(tag, text):
 
 def dot_to_svg(dot_source):
     svg_txt = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
-    return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%" height="100%"', svg_txt)
+    return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%" height="97%"', svg_txt)
 
 def parse_tikz(text):
     text = derender_regexpstr(text)
@@ -107,7 +114,7 @@ def parse_tex(text, object_list, session_key = "0"):
 
     text = re.sub(r"(?<!\\)\\ ", " ", text)
     text = text.replace("\\\\", "\\\\\n")
-    text = re.sub(r"(?<!\\)(?<!%)%[^%].*\n", "\n", text)
+    text = re.sub(r"(?<!\\)%[^@].*\n", "\n", text)
     text = re.sub(r"\\begin{frame}.*\n", "", text)
     text = re.sub(r"\\end{frame}.*\n", "", text)
 
@@ -138,36 +145,34 @@ def parse_tex(text, object_list, session_key = "0"):
         elif "$\\begin{array}" in line:
             table_tex, i = get_content_until("\end{array}$", i)
             svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
-            log_list.append({'type': 'table', 'res': svg_table})
-        elif re.search(r"%%.*\d+\.txt", line):
+            log_list.append({'type': 'simple_table', 'res': svg_table})
+        elif re.search(r"%@.*\d+\.txt", line):
+            object_path = re.match(r"%@(.*\d+\.txt)", line).group(1)
             if "\\begin{tikzpicture}" in lines[i+1]:
-                graph_path = re.match(r"%%(.*\d+\.txt)", line).group(1)
                 i += 1
                 graph_tex, i = get_content_until("\\end{tikzpicture}", i)
                 # graph = parse_tikz(graph_tex)
-                graph = formats_generator.from_dsl(object_list[graph_path])
+                graph = formats_generator.from_dsl(object_list[object_path])
                 dot_source = formats_generator.to_dot(graph)
                 
-                format_list = [{'name': 'DSL', 'txt': object_list[graph_path]}]
+                format_list = [{'name': 'DSL', 'txt': object_list[object_path]}]
                 format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
                 format_list.append({'name': 'LaTeX', 'txt': graph_tex})
                 format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
                 svg_graph = dot_to_svg(dot_source)
                 log_list.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
             elif "$\\begin{array}" in lines[i+1]:
-                table_path = re.match(r"%%(.*\d+\.txt)", line).group(1)
                 i += 1
                 table_tex, i = get_content_until("\end{array}$", i)
 
-                table = formats_generator.from_csv(object_list[table_path])
+                table = formats_generator.from_csv(object_list[object_path])
 
-                format_list = [{'name': 'CSV', 'txt': object_list[table_path]}]
+                format_list = [{'name': 'CSV', 'txt': object_list[object_path]}]
                 format_list.append({'name': 'LaTeX', 'txt': table_tex})
                 log_list.append({'type': 'table', 'res': {'formats': format_list, 'data': table}})
                 # svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
                 # log_list.append({'type': 'text', 'res': create_tag('pre', object_list[table_path])})
         else:
-            line = line.replace("\\\\", " ")
             line = apply_mathml(line)
             log_list.append({'type': 'text', 'res': create_tag('p', line)})
         i += 1

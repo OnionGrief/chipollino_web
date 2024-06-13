@@ -13,10 +13,12 @@
     border-radius: 8px;
     background-color: #e6e6e6;
     overflow: auto;
+    max-height: 350px;
 }
 
 .object_txt_header {
-    padding: 10px;
+    padding: 5px;
+    border-radius: 4px;
     background-color: #eeeeee;
     display: flex;
     justify-content: space-around;
@@ -31,6 +33,12 @@
     height: auto;
     display: flex;
     justify-content: center;
+    max-height: 350px;
+}
+
+.object_figure {
+    overflow: auto;
+    width: 100%;
 }
 
 .get_tex_view {
@@ -39,29 +47,47 @@
     right: 10px;
 }
 
+#selector-container {
+    display: flex;
+    justify-content: center;
+}
+
+#block-selector {
+    margin-block-end: 20px;
+    margin-inline-start: 5px;
+}
+
 #htmlres p {
     margin-block-start: 3px;
     margin-block-end: 3px;
+    margin-inline-start: 20px;
+}
+
+#htmlres pre {
+    margin: 0;
+}
+
+#htmlres h3 {
+    align-self: center;
+    margin-block-start: 0;
+    margin-block-end: 0;
 }
 
 table {
     border-collapse: collapse;
 }
 
-th {
-    background-color: #f0f0f0;
-}
-
 th,
 td {
-    padding: 8px;
+    padding: 0px 8px;
     text-align: center;
 }
 
 th.top {
-    border-bottom: 1px solid rgb(100, 100, 100);
+    background-color: #f0f0f0;
+    border-bottom: 1px solid rgb(200 200 200);
 }
 
 th.left {
-    border-right: 1px solid rgb(100, 100, 100);
+    border-right: 1px solid rgb(200 200 200);
 }

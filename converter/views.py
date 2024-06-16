@@ -2,15 +2,19 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import os
 import json
-from .models import TemporaryFile
+from .models import TemporaryFile, Graph, GraphDB
 
 def index(request):
     if not request.session.session_key:
         request.session.create()
-    return render(request, 'converter/index.html')
+
+    format_list = [{'name': 'DSL', 'editable': True}, {'name': 'DOT', 'editable': False}]
+    graphs = GraphDB.objects.filter(session_key=request.session.session_key)
+    graphs = [g.to_Graph() for g in graphs]
+    return render(request, 'converter/index.html', {'format_list': format_list, 'graph_list': graphs})
 
 
-from converter.src import chipollino_funcs
+from converter.src import chipollino_funcs, formats_generator
 
 def run_interpreter(request):
     session_key = request.session.session_key
@@ -48,6 +52,24 @@ def tex_view(request):
         except Exception:
             return HttpResponse("Can't load tikz_view", status=404)
 
+
+def add_graph(request):
+    if request.method == 'POST':
+        try:
+            req_body = json.loads(request.body)
+            graph_name = req_body.get('name', '')
+            dsl_content = req_body.get('dsl_content', '')
+            GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name).delete()
+            print(graph_name)
+            g = formats_generator.from_dsl(dsl_content).to_GraphDB()
+            g.session_key = request.session.session_key
+            g.name = graph_name
+            g.save()
+            return HttpResponse(f"Saved graph {graph_name}")
+        except Exception:
+            return HttpResponse("Can't save graph", status=404)
+
+        
 def get_random_object(request, object_type):
     if request.method == 'GET':
         res = chipollino_funcs.get_random_object(object_type)
@@ -65,6 +87,8 @@ def is_session_active(session_key):
         session = Session.objects.get(session_key=session_key)
         if session.expire_date > timezone.now():
             return True
+        else:
+            session.delete()
     except Session.DoesNotExist:
         return False
     return False
@@ -79,5 +103,14 @@ def delete_files(request):
                 count += 1
             file.delete()
     return HttpResponse(f"deleted {count} files")
+
+def delete_graphs(request):
+    sessions = Graph.objects.values_list('session_key', flat=True).distinct()
+    count = 0
+    for s in sessions:
+        if not is_session_active(s):
+            deleted_count, _ = Graph.objects.filter(session_key=s).delete()
+            count += deleted_count
+    return HttpResponse(f"deleted {count} graphs")
 
     

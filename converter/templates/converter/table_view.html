@@ -26,22 +26,22 @@
     <div class="object_image">
         <button class="get_tex_view">Render LaTeX version</button>
         <div class="object_figure">
-            <table>
-                    <tr>
-                        <th class="top left"></th>
-                        {% for column in table.columns %}
-                        <th class="top">{{ column }}</th>
-                        {% endfor %}
-                    </tr>
-                    {% for row in table.data %}
-                    <tr>
-                        <th class="left">{{ row.first }}</th>
-                        {% for cell in row.data %}
-                        <td>{{ cell }}</td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-            </table>
+<table>
+        <tr>
+            <th class="top left"></th>
+            {% for column in table.columns %}
+            <th class="top">{{ column }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in table.rows %}
+        <tr>
+            <th class="left">{{ row.first }}</th>
+            {% for cell in row.data %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+</table>
         </div>
     </div>
 </div>

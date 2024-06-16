@@ -75,6 +75,7 @@ def create_tex_svg(text, session_key="0"):
             tex_str += head_file.read().replace('\\maketitle', '')
         tex_str = tex_str.replace('\\begin{document}', '\\usepackage[pdftex,active,tightpage]{preview}\n\\begin{document}')
         tex_str += '\\begin{preview}'
+        text = re.sub(r'([А-Яа-яЁё]+ ?)+', lambda match: f"\\text{{{match.group(0)}}}", text)
         tex_str += text
         tex_str += '\\end{preview}\n\\end{document}'
 
@@ -85,14 +86,17 @@ def create_tex_svg(text, session_key="0"):
         with open(f'{folder_name}/{file_name}.tex', 'w', encoding='utf-8') as f:
             f.write(tex_str)
         # print('rendering graph image..')
-        subprocess.run(f'latex {file_name}.tex', check=True, shell=True, stdout=subprocess.PIPE, timeout=2*60, cwd=folder_name)
-        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi {file_name}.svg', check=True, shell=True, capture_output=True, timeout=1*60, cwd=folder_name)
+        subprocess.run(f'latex {file_name}.tex', check=True, shell=True, capture_output=True, timeout=2*60, cwd=folder_name)
+        subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi', check=True, shell=True, capture_output=True, timeout=1*60, cwd=folder_name)
         
         with open(f'{folder_name}/{file_name}.svg', 'r', encoding='utf-8') as svg_file:
             svg_str = svg_file.read()
-            if not text.startswith('$\\begin{array}'):
+            if text.startswith('$\\begin{array}'):
+                svg_str = re.sub(r"width='[^']*'(?= height='[^']*')" , "width='100%'", svg_str)
+            elif '\\datavisualization' in text:
                 svg_str = re.sub(r"width='[^']*' height='[^']*'" , "width='100%' height='97%'", svg_str)
-        
+            else:
+                svg_str = re.sub(r"width='[^']*' height='[^']*'" , "width='100%'", svg_str)
         files = os.listdir(folder_name)
         del_files = [f for f in files if f.startswith(f"{file_name}")]
         for file in del_files:
@@ -100,13 +104,14 @@ def create_tex_svg(text, session_key="0"):
             os.remove(file)
     except subprocess.CalledProcessError:
         return None
+    except Exception:
+        return None
     return svg_str
 
 def get_random_object(type):
     try:
-        res = subprocess.run(f"{env.CHIPOLLINO_GENERATOR_BINARY} {type} false", stdout=subprocess.PIPE, check=True, shell=True,timeout=2*60, cwd='Chipollino')
-        output = res.stdout.decode("utf-8")
-        return re.sub(r'Input generator\s*', '', output)
+        res = subprocess.run(f"{env.CHIPOLLINO_GENERATOR_BINARY} {type} false", capture_output=True, check=True, shell=True, text=True, timeout=1*60, cwd='Chipollino')
+        return re.sub(r'Input generator\s*', '', res.stdout)
     # except subprocess.CalledProcessError:
     except Exception:
         return None

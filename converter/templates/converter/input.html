@@ -2,8 +2,8 @@
 <div style="display: grid; grid-template-columns: 7fr 3fr;">
     <form id="chipollino-form" action="/result/" method="post"">
         {% csrf_token %}
-        <p class="large_text">Entry text:</p>
-        <textarea name="input-txt" id="input-txt" style="width: 100%; height: 300px; font-size: larger;"></textarea>
+        <p class="large_text">Input text:</p>
+        <textarea name="input-txt" id="input-txt"></textarea>
         <button type="submit" style="margin: 20px;">Run</button>
     </form>
     <div id="input-right-panel">
@@ -19,7 +19,7 @@
             <option value="NFA">NFA</option>
             <option value="MFA">MFA</option>
         </select>
-        <p id="generator_result"> </p>
+        <p id="generator_result">&nbsp;</p>
         </div>
         <button id="randomtest">Generate test</button>
     </div>

@@ -20,12 +20,12 @@
 
 {% if success|default:False %}
 <div id="selector-container">
-<label for="block-selector">Формат отображения: </label>
-<select id="block-selector">
-    <option value="blockpdf">PDF</option>
-    <option value="blocklatex">LaTeX</option>
-    <option value="blockhtml" selected>HTML</option>
-</select>
+    <label for="block-selector">Формат отображения: </label>
+    <select id="block-selector">
+        <option value="blockpdf">PDF</option>
+        <option value="blocklatex">LaTeX</option>
+        <option value="blockhtml" selected>HTML</option>
+    </select>
 </div>
 
 <div class="resultblock" id="blockpdf" style="display: none;">
@@ -40,11 +40,13 @@
         {% if elem.type == 'automaton' %}
         {% include 'converter/automaton_view.html' with format_list=elem.res.formats svg_graph=elem.res.svg %}
         {% elif elem.type == 'table' %}
-        {% include 'converter/table_view.html' with format_list=elem.res.formats table=elem.res.data %}
+{% include 'converter/table_view.html' with format_list=elem.res.formats table=elem.res.data %}
         {% elif elem.type == 'plot' %}
         <div style="height: 200px;">
             {{elem.res|safe}}
         </div>
+        {% elif elem.type == 'text' %}
+        <div class="text">{{elem.res|safe}}</div>
         {% else %}
         {{elem.res|safe}}
         {% endif %}
@@ -55,93 +57,6 @@
 </div>
 {% endif %}
 
-<script>
-    const spinner = document.getElementById('loading-spinner');
-    var pdfLoaded = false;
-
-    const blockSelector = document.getElementById('block-selector');
-    blockSelector.addEventListener('change', (event) => {
-        const selectedValue = event.target.value;
-
-        const blocks = document.querySelectorAll('.resultblock');
-        for (const block of blocks) {
-            if (block.id == selectedValue) {
-                if (selectedValue == 'blockpdf' && !pdfLoaded) {
-                    spinner.style.display = 'block';
-                    fetch('/get_pdf/')
-                        .then(response => response.blob())
-                        .then(blob => {
-                            const url = URL.createObjectURL(blob);
-                            document.getElementById('pdf-viewer').src = url;
-                            pdfLoaded = true;
-                        })
-                        .catch(error => {
-                            alert('Failed to load PDF.');
-                        })
-                        .finally(() => {
-                            spinner.style.display = 'none';
-                        });
-                }
-                block.style.display = 'block';
-            } else {
-                block.style.display = 'none';
-            }
-        }
-    });
-
-
-    var tex_content = document.getElementById("tex-content").innerHTML;
-    var downloadLink = document.getElementById("tex-download");
-    downloadLink.href = "data:application/tex;charset=utf-8," + encodeURIComponent(tex_content);
-
-
-    const automata = document.querySelectorAll('.object_view');
-    automata.forEach(element => {
-        element.querySelector('.format-selector').addEventListener('change', (event) => {
-            const selectedValue = event.target.value;
-            const blocks = element.querySelectorAll('.object_format');
-
-            for (const block of blocks) {
-                if (block.dataset.value == selectedValue) {
-                    block.style.display = 'block';
-                } else {
-                    block.style.display = 'none';
-                }
-            }
-        })
-
-        element.querySelector('.get_tex_view').addEventListener('click', (event) => {
-            // анимация загрузки
-            spinner.style.display = 'block';
-
-            tex_content = "";
-            for (const block of element.querySelectorAll('.object_format')) {
-                if (block.dataset.value == 'LaTeX') {
-                    tex_content = block.textContent;
-                }
-            }
-            fetch('/tex_view/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]')
-                            .value
-                    },
-                    body: JSON.stringify({
-                        "tex_content": tex_content
-                    })
-                })
-                .then(response => response.text())
-                .then(data => {
-                    element.querySelector('.object_figure').innerHTML = data;
-                    element.querySelector('.get_tex_view').disabled = true;
-                })
-                .catch(error => console.error('Error getting SVG from TEX:', error))
-                .finally(() => {
-                    spinner.style.display = 'none';
-                });
-        });
-    });
-</script>
+<script src="{% static 'scripts/result.js' %}"></script>
 
 {% endblock %}

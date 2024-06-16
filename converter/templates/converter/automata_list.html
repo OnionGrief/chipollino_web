@@ -2,10 +2,12 @@
 <div id="automata_container">
     <div id="automata_list">
         <ul>
-            <li>A1</li>
-            <li>M1</li>
-            <li>A2</li>
+            {% for graph in graph_list %}
+                <li data-value={{graph.id}}>{{graph.name}}</li>
+            {% endfor %}
         </ul>
+
+        <button id="add-button">+</button>
     </div>
 
     <div id="automaton_txt">
@@ -15,13 +17,14 @@
             <div style="padding: 0;">
                 format:
                 <select>
-                    <option value="dsl">DSL</option>
-                    <option value="dot">dot</option>
+                    {% for format in format_list %}
+                    <option value="{{format.name}}">{{format.name}}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
 
-        <p>Текст</p>
+        <pre id="automaton-content"></pre>
     </div>
 
     <div id="automaton_image">

@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
+import json
 
 # fs = FileSystemStorage(location='Chipollino/report.pdf')
 
@@ -18,17 +19,29 @@ class TemporaryFile(models.Model):
         return self.path
 
 
-class Graph(models.Model):
+class GraphDB(models.Model):
     nodes = models.JSONField(default=list)
     edges = models.JSONField(default=list)
-    session_key = models.CharField(max_length=40)
+    session_key = models.CharField(max_length=40, null=True)
     name = models.CharField(max_length=255, null=True)
-    temporary_file = models.OneToOneField(TemporaryFile, on_delete=models.CASCADE, null=True)   
+    # temporary_file = models.OneToOneField(TemporaryFile, on_delete=models.CASCADE, null=True)   
     def __str__(self):
-        return self.name
+        return f'{self.name} {self.session_key}'
+        return f'nodes: {self.nodes}\nedges:{self.edges}'
+    def to_Graph(self):
+        return Graph(nodes=json.loads(self.nodes), edges=json.loads(self.edges), name=self.name, id=self.id)
 
 class Table:
-    def __init__(self, columns, data):
+    def __init__(self, columns, rows):
         self.columns = columns
-        self.data = data
+        self.rows = rows
+
+class Graph(): 
+    def __init__(self, nodes, edges, name="", id=0):
+        self.nodes = nodes
+        self.edges = edges
+        self.name = name
+        self.id = id
+    def to_GraphDB(self):
+        return GraphDB(nodes=json.dumps(list(self.nodes)), edges=json.dumps(self.edges))
 

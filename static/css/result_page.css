@@ -3,7 +3,7 @@
     display: grid;
     grid-template-columns: 1fr 2fr;
     height: auto;
-    margin: 20px;
+    margin: 10px 20px;
     border: 1px solid #e6e6e6;
     border-radius: 10px;
 }
@@ -39,11 +39,14 @@
 .object_figure {
     overflow: auto;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .get_tex_view {
     position: absolute;
-    top: -35px;
+    top: -20px;
     right: 10px;
 }
 
@@ -63,13 +66,21 @@
     margin-inline-start: 20px;
 }
 
+.text {
+    white-space: pre;
+    text-wrap: pretty;
+    margin-block-start: 2px;
+    margin-block-end: 2px;
+    margin-inline-start: 20px;
+}
+
 #htmlres pre {
     margin: 0;
 }
 
 #htmlres h3 {
     align-self: center;
-    margin-block-start: 0;
+    margin-block-start: 10px;
     margin-block-end: 0;
 }
 

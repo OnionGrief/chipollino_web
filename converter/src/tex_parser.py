@@ -48,7 +48,7 @@ def remove_substring_until_none(string, substring):
     return string
 
 def derender_regexpstr(text):
-    text = text.replace("\\\\", " ")
+    text = text.replace("\\\\", "        ")
     text = text.replace("\\%", "%")
     text = text.replace("\\{", "{")
     text = text.replace("\\}", "}")
@@ -69,7 +69,7 @@ def create_tag(tag, text):
 
 def dot_to_svg(dot_source):
     svg_txt = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
-    return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%" height="97%"', svg_txt)
+    return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%"', svg_txt)
 
 def parse_tikz(text):
     text = derender_regexpstr(text)
@@ -112,8 +112,8 @@ def parse_tex(text, object_list, session_key = "0"):
 
     text = get_content(text, '\maketitle', '\end{document}')
 
-    text = re.sub(r"(?<!\\)\\ ", " ", text)
-    text = text.replace("\\\\", "\\\\\n")
+    text = re.sub(r"(?<!\\)\\ ", '&nbsp;', text)
+    text = text.replace("\\\\", "\\\\ ")
     text = re.sub(r"(?<!\\)%[^@].*\n", "\n", text)
     text = re.sub(r"\\begin{frame}.*\n", "", text)
     text = re.sub(r"\\end{frame}.*\n", "", text)
@@ -141,11 +141,11 @@ def parse_tex(text, object_list, session_key = "0"):
             else:
                 graph_tex, i = get_content_until("\\end{tikzpicture}", i)
                 svg_graph = chipollino_funcs.create_tex_svg(graph_tex, session_key=session_key)
-                log_list.append({'type': 'automaton', 'res': {'formats': [{'name': 'LaTeX', 'txt': graph_tex}], 'svg': svg_graph}})
+                log_list.append({'type': 'svg', 'res': {'formats': [{'name': 'LaTeX', 'txt': graph_tex}], 'svg': svg_graph}})
         elif "$\\begin{array}" in line:
             table_tex, i = get_content_until("\end{array}$", i)
             svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
-            log_list.append({'type': 'simple_table', 'res': svg_table})
+            log_list.append({'type': 'svg', 'res': svg_table})
         elif re.search(r"%@.*\d+\.txt", line):
             object_path = re.match(r"%@(.*\d+\.txt)", line).group(1)
             if "\\begin{tikzpicture}" in lines[i+1]:
@@ -174,6 +174,6 @@ def parse_tex(text, object_list, session_key = "0"):
                 # log_list.append({'type': 'text', 'res': create_tag('pre', object_list[table_path])})
         else:
             line = apply_mathml(line)
-            log_list.append({'type': 'text', 'res': create_tag('p', line)})
+            log_list.append({'type': 'text', 'res': line})
         i += 1
     return log_list

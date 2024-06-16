@@ -28,6 +28,80 @@ def to_dot(graph: Graph):
         res += f'\t{edge["source"]} -> {edge["target"]} [label="{edge["label"]}"]\n'
     return res + "}"
 
+def to_gdf(graph: Graph):
+    res = "nodedef> name VARCHAR,label VARCHAR\n"
+    for state in graph.nodes:
+        res += f'{state["id"]},"{state["label"]}"\n'
+    res += "edgedef> node1,node2,label VARCHAR,directed BOOLEAN"
+    for edge in graph.edges:
+        res += f'{edge["source"]},{edge["target"]},"{edge["label"]}",true\n'
+    return res
+
+def to_gml(graph: Graph):
+    res = "["
+    for state in graph.nodes:
+        res += f"""
+    node
+    [
+        id {state["id"]}
+        label "{state["label"]}"
+    ]"""
+    for edge in graph.edges:
+        res += f"""
+    edge
+    [
+        source {edge["source"]}
+        target {edge["target"]}
+        label "{edge["label"]}"
+    ]"""
+    return res + '\n]'
+
+def to_graphml(graph: Graph):
+    res = """<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+    <key attr.name="label" attr.type="string" for="node" id="label"/>
+    <key attr.name="Edge Label" attr.type="string" for="edge" id="edgelabel"/>
+    <graph edgedefault="directed">"""
+    for state in graph.nodes:
+        res += f"""
+        <node id="{state["id"]}">
+            <data key="label">{state["label"]}</data>
+        </node>"""
+    edge_num = 0
+    for edge in graph.edges:
+        edge_num += 1
+        res += f"""
+        <edge id="e{edge_num}" source="{edge["source"]}" target="{edge["target"]}">
+            <data key="edgelabel">{edge["label"]}</data>
+        </edge>"""
+    res += """
+    </graph>
+</graphml>"""
+    return res
+
+def to_gexf(graph: Graph):
+    res = """<?xml version='1.0' encoding='UTF-8'?>
+<gexf xmlns="http://gexf.net/1.2" version="1.2">
+  <graph defaultedgetype="directed" mode="static">
+    <nodes>"""
+    for state in graph.nodes:
+        res += f"""
+      <node id="{state["id"]}" label="{state["label"]}"/>"""
+    res += """
+    </nodes>
+    <edges>"""
+    edge_num = 0
+    for edge in graph.edges:
+        edge_num += 1
+        res += f"""
+      <edge id="e{edge_num}" source="{edge["source"]}" target="{edge["target"]}" label="{edge["label"]}"/>"""
+    res += """
+    </edges>
+  </graph>
+</gexf>"""
+    return res
+
+
 def from_dsl(text):
     nodes, edges = {}, []
     text = text.strip()
@@ -75,6 +149,8 @@ def from_dsl(text):
     return Graph(nodes=nodes.values(), edges=edges)
 
 
+# table formats
+
 def from_csv(text):
     columns, rows = [], []
     lines = text.splitlines()
@@ -88,3 +164,29 @@ def from_csv(text):
         rows.append({"first": r[0], "data": row_data})
     return Table(columns, rows)
 
+def to_md(t: Table):
+    res, line = "|       |", "| ----- |"
+    for c in t.columns:
+        res += f" {c} |"
+        line += " - |"
+    res += '\n' + line
+    for row in t.rows:
+        res += f'\n| **{row["first"]}** |'
+        for cell in row["data"]:
+            res += f' {cell} |'
+    return res
+
+def to_asciidoc(t: Table):
+    res, line = "|     ", '[cols="1'
+    for c in t.columns:
+        res += f"| *{c}* "
+        line += ",1"
+    res = line + '"]\n|===\n' + res
+    for row in t.rows:
+        res += f'\n| *{row["first"]}*'
+        for cell in row["data"]:
+            res += ' | ' + cell
+    return res + "\n|==="
+
+def table_to_json(t: Table):
+    return json.dumps({"columns": t.columns, "rows": t.rows}, indent=2, ensure_ascii=False)

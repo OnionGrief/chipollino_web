@@ -158,6 +158,10 @@ def parse_tex(text, object_list, session_key = "0"):
                 format_list = [{'name': 'DSL', 'txt': object_list[object_path]}]
                 format_list.append({'name': 'DOT', 'txt': formats_generator.to_dot(graph)})
                 format_list.append({'name': 'LaTeX', 'txt': graph_tex})
+                format_list.append({'name': 'GDF', 'txt': formats_generator.to_gdf(graph)})
+                format_list.append({'name': 'GML', 'txt': formats_generator.to_gml(graph)})
+                format_list.append({'name': 'GEXF', 'txt': formats_generator.to_gexf(graph)})
+                format_list.append({'name': 'GraphML', 'txt': formats_generator.to_graphml(graph)})
                 format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
                 svg_graph = dot_to_svg(dot_source)
                 log_list.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
@@ -165,10 +169,15 @@ def parse_tex(text, object_list, session_key = "0"):
                 i += 1
                 table_tex, i = get_content_until("\end{array}$", i)
 
-                table = formats_generator.from_csv(object_list[object_path])
+                csv_table = object_list[object_path].replace('eps','ε')
+                table = formats_generator.from_csv(csv_table)
 
-                format_list = [{'name': 'CSV', 'txt': object_list[object_path]}]
+                format_list = [{'name': 'CSV', 'txt': csv_table}]
                 format_list.append({'name': 'LaTeX', 'txt': table_tex})
+                format_list.append({'name': 'MarkDown', 'txt': formats_generator.to_md(table)})
+                format_list.append({'name': 'AsciiDoc', 'txt': formats_generator.to_asciidoc(table)})
+                format_list.append({'name': 'JSON', 'txt': formats_generator.table_to_json(table)})
+                format_list.append({'name': 'HTML', 'txt': ''})
                 log_list.append({'type': 'table', 'res': {'formats': format_list, 'data': table}})
                 # svg_table = chipollino_funcs.create_tex_svg(table_tex, session_key=session_key)
                 # log_list.append({'type': 'text', 'res': create_tag('pre', object_list[table_path])})

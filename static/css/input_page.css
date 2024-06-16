@@ -1,0 +1,44 @@
+#input-txt {
+    width: 100%;
+    height: 300px;
+    font-size: larger;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#input-right-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    justify-content: space-evenly;
+}
+
+
+#gen_arg {
+    cursor: pointer;
+    width: 100%;
+}
+
+#gen_arg:hover {
+    background-color: #e0e0e0;
+}
+
+#args_list {
+    display: none;
+    width: 250px;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.gen_object {
+    font-size: smaller;
+    font-family: sans-serif;
+    cursor: pointer;
+    padding: 4px 10px;
+}
+
+.gen_object:hover {
+    background-color: #f1f1f1;
+}

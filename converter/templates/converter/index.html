@@ -3,8 +3,9 @@
 {% load static %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/automata_list.css' %}">
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/input_page.css' %}">
+<link rel="stylesheet" href="{% static 'css/automata_list.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -20,30 +21,6 @@
 {% comment %} <h1>Страница приложения generator</h1>
 <a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
 
-<script>
-    document.getElementById('chipollino-form').addEventListener('submit', (event) => {
-        const loader = document.getElementById('loading-spinner');
-        loader.style.display = 'block'; // Показать анимацию загрузки
-    });
-
-    const generatorSelector = document.getElementById('generator-selector');
-    generatorSelector.addEventListener('change', (event) => {
-        const selectedValue = event.target.value;
-        fetch('/generator/' + selectedValue)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('generator_result').innerHTML = data;
-            });
-    });
-
-    const testGenerator = document.getElementById('randomtest');
-    testGenerator.addEventListener('click', (event) => {
-        fetch('/generator/' + 'Test')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('input-txt').value = data;
-            });
-    });
-</script>
+<script src="{% static 'scripts/index.js' %}"></script>
 
 {% endblock %}

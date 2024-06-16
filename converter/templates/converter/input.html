@@ -1,8 +1,7 @@
-
 <div style="display: grid; grid-template-columns: 7fr 3fr;">
     <form id="chipollino-form" action="/result/" method="post"">
         {% csrf_token %}
-        <p class="large_text">Input text:</p>
+        <p class=" large_text">Input text:</p>
         <textarea name="input-txt" id="input-txt"></textarea>
         <button type="submit" style="margin: 20px;">Run</button>
     </form>
@@ -12,14 +11,16 @@
             <option value="func1">func 1</option>
         </select>
         <div style="display: flex; flex-direction: column;">
-        <select id="generator-selector">
-            <option value="" disabled selected>Generate argument</option>
-            <option value="Regex">Regex</option>
-            <option value="BackRefRegex">BackRefRegex</option>
-            <option value="NFA">NFA</option>
-            <option value="MFA">MFA</option>
-        </select>
-        <p id="generator_result">&nbsp;</p>
+            <div id="generator-selector">
+                <button id="gen_arg">Generate argument</button>
+                <div id="args_list">
+                    <div class="gen_object" id="Regex">Regex</div>
+                    <div class="gen_object" id="BackRefRegex">BackRefRegex</div>
+                    <div class="gen_object" id="NFA">NFA</div>
+                    <div class="gen_object" id="MFA">MFA</div>
+                </div>
+            </div>
+            <p id="generator_result">&nbsp;</p>
         </div>
         <button id="randomtest">Generate test</button>
     </div>

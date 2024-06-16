@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Visualization with Cytoscape.js</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.29.2/cytoscape.min.js"></script>
+    <style>
+        #cy {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Graph Visualization with Cytoscape.js</h1>
+    <div id="cy"></div>
+    <button onclick="addNode(cy)">Add Node</button>
+    <button onclick="addEdge(cy)">Add Edge</button>
+
+
+    <script>
+// document.addEventListener('DOMContentLoaded', function() {
+    
+    const graphData = {
+        nodes: [
+            { data: { id: 'dummy', label: ''}, classes: 'dummy'}, 
+            { data: { id: 'start', label: 'Start' }},
+            { data: { id: 'a', label: 'Node AAAAAAAAA' } },
+            { data: { id: 'b', label: 'B' } },
+            { data: { id: 'c', label: 'Node C' }, classes: 'doublecircle' },
+            { data: { id: 'd', label: 'Node D' } },
+            { data: { id: 'e', label: 'E' } },
+            { data: { id: 'h', label: 'H' } },
+        ],
+        edges: [
+        { data: { source: 'dummy', target: 'start', label: ''} }, // Стрелка из вершины-пустышки в начальную вершину
+        { data: { source: 'start', target: 'a', label: 'to A' } },
+            { data: { source: 'a', target: 'a', label: 'A to A' } },
+            { data: { source: 'b', target: 'b', label: 'B to B' } },
+            { data: { source: 'a', target: 'b', label: 'A to B' } },
+            { data: { source: 'b', target: 'd', label: 'bd' } },
+            { data: { source: 'a', target: 'c', label: 'A to C' } },
+            { data: { source: 'b', target: 'd', label: 'B to D' } },
+            { data: { source: 'c', target: 'd', label: 'C to D' } },
+            { data: { source: 'd', target: 'e', label: 'de' } },
+            { data: { source: 'e', target: 'h', label: 'eh' } },
+        ]
+    };
+
+    const cy = cytoscape({
+        container: document.getElementById('cy'), // container to render in
+        elements: graphData,
+        style: [ // the stylesheet for the graph
+            {
+                selector: 'node',
+                style: {
+                    'background-color': '#ffffff',
+                    'border-width': 1,
+                    'label': 'data(label)',
+                    'text-valign': 'center',
+                    'font-size': '10px',
+                    'shape': 'ellipse'
+                }
+            },
+            {
+                selector: 'node.dummy',
+                style: {
+                    'border-width': 0,
+                }
+            },
+            {
+                selector: 'node.doublecircle',
+                style: {
+                    'border-width': 3,
+                    'border-style': 'double',
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 1,
+                    'line-color': '#000',
+                    'target-arrow-color': '#000',
+                    'target-arrow-shape': 'vee',
+                    'curve-style': 'bezier',
+                    'label': 'data(label)',
+                    'font-size': '10px',
+                    'text-rotation': 'autorotate',
+                    'text-margin-y': -10,
+                    'color': '#000',
+                    'loop-direction': '0deg',
+                    'loop-sweep': '25deg',
+                }
+            }
+        ],
+        layout: {
+            name: 'grid',
+            rows: 1
+        }
+    });
+
+    layout_settings = {
+        name: 'breadthfirst',
+        //     fit: false,
+        // boundingBox: { 
+        //   x1: 0, y1: 0, 
+        //   x2: 800, y2: 600
+        // },
+        directed: true,
+        spacingFactor: 1,
+        transform: function (node, position) {
+            return {x: position.y, y: position.x}; // Swap x and y to make it horizontal
+        }
+    }
+
+    cy.layout(layout_settings).run();
+
+    cy.nodes().forEach(function (node) {
+        const labelLength = node.data('label').length;
+        const width = Math.max(20, Math.min(50, labelLength * 7));
+        node.style('width', width);
+        node.style('height', width);
+    });
+
+
+
+    function addNode(cy) {
+        nodeId = prompt();
+        cy.nodes().forEach(function(node) {
+            node.lock();
+        });
+        cy.add({
+            group: 'nodes',
+            data: { id: nodeId, label: nodeId},
+            position: {x: 200, y: 200},
+            locked: true,
+        });
+        cy.layout(layout_settings).run();
+        cy.nodes().forEach(function(node) {
+            node.unlock();
+        });
+    }
+
+    function addEdge(cy) {
+        cy.nodes().forEach(function(node) {
+            node.lock();
+        });
+        source = prompt('source');
+        target = prompt('target');
+        label = prompt('label');
+        cy.add({
+            group: 'edges',
+            data: { source: source, target: target, label: label },
+            
+        });
+        cy.layout(layout_settings).run();
+        cy.nodes().forEach(function(node) {
+            node.unlock();
+        });
+    }
+// });
+
+    </script>
+</body>
+</html>

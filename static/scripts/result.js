@@ -43,7 +43,7 @@ automata.forEach(element => {
     for (const block of blocks)
         if (block.dataset.value == 'HTML')
             block.textContent = element.querySelector('.object_figure').innerHTML
-            
+
     element.querySelector('.format-selector').addEventListener('change', (event) => {
         const selectedValue = event.target.value;
         const blocks = element.querySelectorAll('.object_format');

@@ -2,8 +2,24 @@ from converter.models import Graph, Table
 import json
 import re
 from converter.src import tex_parser
+import graphviz
 
 # graph formats
+
+def get_format_list():
+    return [{'name': 'DSL', 'editable': True, 'func': to_dsl}, {'name': 'DOT', 'editable': False, 'func': to_dot}]
+def map_format_list():
+    formats = {}
+    for f in get_format_list():
+        formats[f['name']] = f
+    return formats
+
+def dot_to_svg(dot_source):
+    svg_txt = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
+    return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%"', svg_txt)
+def svg_graphviz(g: Graph):
+    return dot_to_svg(to_dot(g))
+
 
 def to_json(graph: Graph):
     return json.dumps({"nodes": list(graph.nodes), "edges": graph.edges}, indent=2, ensure_ascii=False)
@@ -106,6 +122,7 @@ def from_dsl(text):
     nodes, edges = {}, []
     text = text.strip()
     text = text.replace('eps','ε')
+    type = "NFA"
     def parse_nodes(nlist):
         for line in [l for l in nlist.splitlines() if l and not l.isspace()]:
             line = line.strip()
@@ -137,6 +154,7 @@ def from_dsl(text):
                 add_edge(*line.strip().split()[:-1])
         else:
             assert text.startswith("MFA")
+            type = "MFA"
             pattern = re.compile(r'MFA(.*)\.\.\.(.*)$', re.DOTALL)
             nlist, elist = pattern.match(text).groups()
             parse_nodes(nlist)
@@ -146,7 +164,7 @@ def from_dsl(text):
                 add_edge(edge_match.group('source'), edge_match.group('target'), edge_match.group('label'))
     except Exception:
         return None
-    return Graph(nodes=nodes.values(), edges=edges)
+    return Graph(nodes=nodes.values(), edges=edges, type=type)
 
 
 # table formats

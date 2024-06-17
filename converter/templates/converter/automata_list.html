@@ -3,7 +3,7 @@
     <div id="automata_list">
         <ul>
             {% for graph in graph_list %}
-            <li data-value={{graph.id}}>{{graph.name}}</li>
+            <li class="graph_name" data-value={{graph.id}}>{{graph.name}}</li>
             {% endfor %}
         </ul>
 
@@ -16,20 +16,18 @@
             <button>Delete</button>
             <div style="padding: 0;">
                 format:
-                <select>
+                <select id="format-selector">
                     {% for format in format_list %}
-                    <option value="{{format.name}}">{{format.name}}</option>
+                    <option value="{{format.name}}" data-editable="{{format.editable}}">{{format.name}}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
 
-        <pre id="automaton-content"></pre>
+        <textarea id="automaton-content" disabled></textarea>
     </div>
 
     <div id="automaton_image">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <image xlink:href="{% static 'images/example.svg' %}" width="100%" height="100%" />
-        </svg>
+
     </div>
 </div>

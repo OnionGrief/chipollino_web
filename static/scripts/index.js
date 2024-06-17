@@ -6,7 +6,7 @@ window.addEventListener('unload', function (event) {
     document.getElementById('loading-spinner').style.display = 'none';
 });
 
-document.getElementById('gen_arg').onmouseover = function() {
+document.getElementById('gen_arg').onmouseover = function () {
     document.getElementById('args_list').style.display = 'block';
 }
 
@@ -30,4 +30,72 @@ testGenerator.addEventListener('click', (event) => {
         .then(data => {
             document.getElementById('input-txt').value = data;
         });
+});
+
+
+var automaton_content = document.getElementById('automaton-content');
+format_list = [];
+const formatSelector = document.getElementById('format-selector');
+formatSelector.querySelectorAll('option').forEach(format => {
+    format_list[format.value] = {
+        name: format.value,
+        editable: format.dataset.editable
+    };
+});
+
+var curentGraphId = -1;
+
+formatSelector.addEventListener('change', (event) => {
+    const selectedValue = event.target.value;
+    if (curentGraphId != -1) {
+    fetch(`/get_graph/${curentGraphId}/${selectedValue}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('server error');
+                }
+                return response.json();
+            })
+            .then(data => {
+                automaton_content.textContent = data.text;
+                if (data.editable)
+                    automaton_content.disabled = false;
+                else
+                    automaton_content.disabled = true;
+            })
+            .catch(error => {
+                console.error(`Error getting format ${selectedValue} of graph ${curentGraphId} :`, error);
+            });
+
+    if (format_list[selectedValue].editable == "True")
+        automaton_content.disabled = false;
+    else
+        automaton_content.disabled = true;
+    }
+});
+
+const graph_list = document.querySelectorAll('.graph_name')
+graph_list.forEach(g_name => {
+    g_name.addEventListener('click', (event) => {
+        const g_id = event.target.dataset.value;
+        fetch('/get_graph/' + g_id)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('server error');
+                }
+                return response.json();
+            })
+            .then(data => {
+                automaton_content.textContent = data.text;
+                formatSelector.value = data.format;
+                if (data.editable)
+                    automaton_content.disabled = false;
+                else
+                    automaton_content.disabled = true;
+                document.getElementById('automaton_image').innerHTML = data.svg;
+                curentGraphId = g_id
+            })
+            .catch(error => {
+                console.error(`Error getting graph ${g_id} :`, error);
+            });
+    });
 });

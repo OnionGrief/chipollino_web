@@ -1,20 +1,19 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse, JsonResponse
 import os
 import json
 from .models import TemporaryFile, Graph, GraphDB
+from converter.src import chipollino_funcs, formats_generator
 
 def index(request):
     if not request.session.session_key:
         request.session.create()
 
-    format_list = [{'name': 'DSL', 'editable': True}, {'name': 'DOT', 'editable': False}]
+    format_list = formats_generator.get_format_list()
     graphs = GraphDB.objects.filter(session_key=request.session.session_key)
     graphs = [g.to_Graph() for g in graphs]
     return render(request, 'converter/index.html', {'format_list': format_list, 'graph_list': graphs})
 
-
-from converter.src import chipollino_funcs, formats_generator
 
 def run_interpreter(request):
     session_key = request.session.session_key
@@ -53,6 +52,23 @@ def tex_view(request):
             return HttpResponse("Can't load tikz_view", status=404)
 
 
+def get_graph(request, graph_id):
+    if request.method == 'GET':
+        g = get_object_or_404(GraphDB, id=graph_id).to_Graph()
+        res = formats_generator.to_dsl(g)
+        format_list = formats_generator.map_format_list()
+        return JsonResponse({'text': res, 'format': 'DSL', 'editable': format_list['DSL']['editable'], 'svg': formats_generator.svg_graphviz(g)})
+
+def get_graph_format(request, graph_id, format_name):
+    if request.method == 'GET':
+        try:
+            g = get_object_or_404(GraphDB, id=graph_id).to_Graph()
+            format_list = formats_generator.map_format_list()
+            res = format_list[format_name]['func'](g)
+            return JsonResponse({'text': res, 'editable': format_list[format_name]['editable']})
+        except Exception:
+            return HttpResponse("Can't get format " + format_name, status=404)
+
 def add_graph(request):
     if request.method == 'POST':
         try:
@@ -60,7 +76,6 @@ def add_graph(request):
             graph_name = req_body.get('name', '')
             dsl_content = req_body.get('dsl_content', '')
             GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name).delete()
-            print(graph_name)
             g = formats_generator.from_dsl(dsl_content).to_GraphDB()
             g.session_key = request.session.session_key
             g.name = graph_name

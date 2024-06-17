@@ -2,7 +2,6 @@ import re
 import latex2mathml.converter
 from converter.models import Graph
 from converter.src import chipollino_funcs, formats_generator
-import graphviz
 
 # получить часть файла от begin до end_mark
 def get_content(text, begin, end_mark="}"):
@@ -66,10 +65,6 @@ def derender_regexpstr(text):
 
 def create_tag(tag, text):
     return f'<{tag}>{text}</{tag}>'
-
-def dot_to_svg(dot_source):
-    svg_txt = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
-    return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%"', svg_txt)
 
 def parse_tikz(text):
     text = derender_regexpstr(text)
@@ -163,7 +158,7 @@ def parse_tex(text, object_list, session_key = "0"):
                 format_list.append({'name': 'GEXF', 'txt': formats_generator.to_gexf(graph)})
                 format_list.append({'name': 'GraphML', 'txt': formats_generator.to_graphml(graph)})
                 format_list.append({'name': 'JSON', 'txt': formats_generator.to_json(graph)})
-                svg_graph = dot_to_svg(dot_source)
+                svg_graph = formats_generator.dot_to_svg(dot_source)
                 log_list.append({'type': 'automaton', 'res': {'formats': format_list, 'svg': svg_graph}})
             elif "$\\begin{array}" in lines[i+1]:
                 i += 1

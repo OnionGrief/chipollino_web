@@ -120,7 +120,17 @@
     });
 
 
-        
+    
+    function lockGraph() {
+        cy.nodes().forEach(function(node) {
+            node.lock();
+        });
+    }
+    function unlockGraph() {
+        cy.nodes().forEach(function(node) {
+            node.unlock();
+        });
+    }
 
     var sourceNode = null;
     var targetNode = null;
@@ -151,20 +161,21 @@
 
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Delete' && selectedElement) {
+            lockGraph()
             cy.remove(selectedElement);
             selectedElement = null;
             sourceNode = null;
             targetNode = null;
+            cy.layout(layout_settings).run();
+            unlockGraph()
         }
     });
 
 
 
     function addNode() {
-        nodeId = prompt();
-        cy.nodes().forEach(function(node) {
-            node.lock();
-        });
+        nodeId = prompt('Enter node id:');
+        lockGraph();
         let start_pos = cy.getElementById('dummy').position();
         cy.add({
             group: 'nodes',
@@ -173,31 +184,26 @@
             locked: true,
         });
         cy.layout(layout_settings).run();
-        cy.nodes().forEach(function(node) {
-            node.unlock();
-        });
+        unlockGraph();
     }
 
     function addEdge() {
-        label = prompt('label');
-        cy.nodes().forEach(function(node) {
-            node.lock();
-        });
-        cy.add({
-            group: 'edges',
-            data: { source: sourceNode.id(), target: targetNode.id(), label: label },
-            
-        });
-        sourceNode.style('border-color', 'black');
-        targetNode.style('border-color', 'black');
-        cy.layout(layout_settings).run();
-        cy.nodes().forEach(function(node) {
-            node.unlock();
-        });
+        if (sourceNode != null && targetNode != null) {
+            label = prompt('Enter edge label');
+            lockGraph();
+            cy.add({
+                group: 'edges',
+                data: { source: sourceNode.id(), target: targetNode.id(), label: label },
+                
+            });
+            sourceNode.style('border-color', 'black');
+            targetNode.style('border-color', 'black');
+            cy.layout(layout_settings).run();
+            unlockGraph();
+        }
     }
     
     function changeFinality() {
-        console.log(selectedElement, sourceNode, targetNode)
         if (selectedElement != null && selectedElement.isNode())
             if (selectedElement.classes().includes('doublecircle')) 
                 selectedElement.removeClass('doublecircle');

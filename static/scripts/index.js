@@ -1,9 +1,9 @@
 document.getElementById('chipollino-form').addEventListener('submit', (event) => {
-    document.getElementById('loading-spinner').style.display = 'block';
+    spinner.style.display = 'block';
 });
 
 window.addEventListener('unload', function (event) {
-    document.getElementById('loading-spinner').style.display = 'none';
+    spinner.style.display = 'none';
 });
 
 document.getElementById('gen_arg').onmouseover = function () {

@@ -2,6 +2,20 @@
     font-size: x-large;
 }
 
+#alert {
+    padding: 4px 30px;
+    background-color: #4f5357;
+    color: #e8ecf2;
+    opacity: 0;
+    transition: opacity 0.5s linear;
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1000;
+    border-radius: 5px;
+}
+
 #loading-spinner {
     display: none;
     position: fixed;

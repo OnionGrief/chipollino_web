@@ -10,6 +10,7 @@
 
 {% block content %}
 <div id="loading-spinner"></div>
+<div id="alert">Error</div>
 
 {% include 'converter/input.html' %}
 
@@ -21,6 +22,7 @@
 {% comment %} <h1>Страница приложения generator</h1>
 <a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
 
+<script src="{% static 'scripts/script.js' %}"></script>
 <script src="{% static 'scripts/index.js' %}"></script>
 
 {% endblock %}

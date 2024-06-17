@@ -1,4 +1,3 @@
-const spinner = document.getElementById('loading-spinner');
 var pdfLoaded = false;
 
 const blockSelector = document.getElementById('block-selector');

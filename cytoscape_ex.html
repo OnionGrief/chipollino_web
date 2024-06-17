@@ -16,12 +16,12 @@
 <body>
     <h1>Graph Visualization with Cytoscape.js</h1>
     <div id="cy"></div>
-    <button onclick="addNode(cy)">Add Node</button>
-    <button onclick="addEdge(cy)">Add Edge</button>
+    <button onclick="addNode()">Add Node</button>
+    <button onclick="addEdge()">Add Edge</button>
+    <button onclick="changeFinality()">Change Finality</button>
 
 
     <script>
-// document.addEventListener('DOMContentLoaded', function() {
     
     const graphData = {
         nodes: [
@@ -35,7 +35,7 @@
             { data: { id: 'h', label: 'H' } },
         ],
         edges: [
-        { data: { source: 'dummy', target: 'start', label: ''} }, // Стрелка из вершины-пустышки в начальную вершину
+        { data: { source: 'dummy', target: 'start', label: ''} },
         { data: { source: 'start', target: 'a', label: 'to A' } },
             { data: { source: 'a', target: 'a', label: 'A to A' } },
             { data: { source: 'b', target: 'b', label: 'B to B' } },
@@ -50,9 +50,9 @@
     };
 
     const cy = cytoscape({
-        container: document.getElementById('cy'), // container to render in
+        container: document.getElementById('cy'), 
         elements: graphData,
-        style: [ // the stylesheet for the graph
+        style: [
             {
                 selector: 'node',
                 style: {
@@ -103,11 +103,6 @@
 
     layout_settings = {
         name: 'breadthfirst',
-        //     fit: false,
-        // boundingBox: { 
-        //   x1: 0, y1: 0, 
-        //   x2: 800, y2: 600
-        // },
         directed: true,
         spacingFactor: 1,
         transform: function (node, position) {
@@ -125,16 +120,56 @@
     });
 
 
+        
 
-    function addNode(cy) {
+    var sourceNode = null;
+    var targetNode = null;
+    var selectedElement = null;
+
+    // Обработчик выбора узлов
+    cy.on('tap', 'node', function(event) {
+        var node = event.target;
+        if (sourceNode === null && targetNode === null) {
+            sourceNode = node;
+            sourceNode.style('border-color', 'green');
+        } else if (targetNode === null && sourceNode != null) {
+            targetNode = node;
+            targetNode.style('border-color', 'red');
+        } else if (sourceNode != null && targetNode != null) {
+            sourceNode.style('border-color', 'black');
+            targetNode.style('border-color', 'black');
+            targetNode = null;
+            sourceNode = node;
+            sourceNode.style('border-color', 'green');
+        }
+        selectedElement = node;
+    });
+
+    cy.on('tap', 'edge', function(event) {
+        selectedElement = event.target;
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Delete' && selectedElement) {
+            cy.remove(selectedElement);
+            selectedElement = null;
+            sourceNode = null;
+            targetNode = null;
+        }
+    });
+
+
+
+    function addNode() {
         nodeId = prompt();
         cy.nodes().forEach(function(node) {
             node.lock();
         });
+        let start_pos = cy.getElementById('dummy').position();
         cy.add({
             group: 'nodes',
             data: { id: nodeId, label: nodeId},
-            position: {x: 200, y: 200},
+            position: {x: start_pos.x + 50, y: start_pos.y - 100},
             locked: true,
         });
         cy.layout(layout_settings).run();
@@ -143,24 +178,32 @@
         });
     }
 
-    function addEdge(cy) {
+    function addEdge() {
+        label = prompt('label');
         cy.nodes().forEach(function(node) {
             node.lock();
         });
-        source = prompt('source');
-        target = prompt('target');
-        label = prompt('label');
         cy.add({
             group: 'edges',
-            data: { source: source, target: target, label: label },
+            data: { source: sourceNode.id(), target: targetNode.id(), label: label },
             
         });
+        sourceNode.style('border-color', 'black');
+        targetNode.style('border-color', 'black');
         cy.layout(layout_settings).run();
         cy.nodes().forEach(function(node) {
             node.unlock();
         });
     }
-// });
+    
+    function changeFinality() {
+        console.log(selectedElement, sourceNode, targetNode)
+        if (selectedElement != null && selectedElement.isNode())
+            if (selectedElement.classes().includes('doublecircle')) 
+                selectedElement.removeClass('doublecircle');
+            else 
+                selectedElement.addClass('doublecircle');
+}
 
     </script>
 </body>

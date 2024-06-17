@@ -9,6 +9,15 @@ window.addEventListener('unload', function (event) {
 document.getElementById('gen_arg').onmouseover = function () {
     document.getElementById('args_list').style.display = 'block';
 }
+document.getElementById('gen_arg').onmouseout = function () {
+    document.getElementById('args_list').style.display = 'none';
+}
+document.getElementById('args_list').onmouseover = function () {
+    document.getElementById('args_list').style.display = 'block';
+}
+document.getElementById('args_list').onmouseout = function () {
+    document.getElementById('args_list').style.display = 'none';
+}
 
 const generatorSelector = document.querySelectorAll('.gen_object')
 generatorSelector.forEach(gen_obj => {
@@ -43,11 +52,11 @@ formatSelector.querySelectorAll('option').forEach(format => {
     };
 });
 
-var curentGraphId = -1;
+var curentGraphId = null;
 
 formatSelector.addEventListener('change', (event) => {
     const selectedValue = event.target.value;
-    if (curentGraphId != -1) {
+    if (curentGraphId != null) {
     fetch(`/get_graph/${curentGraphId}/${selectedValue}`)
             .then(response => {
                 if (!response.ok) {

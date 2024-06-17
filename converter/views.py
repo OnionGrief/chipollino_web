@@ -84,6 +84,13 @@ def add_graph(request):
         except Exception:
             return HttpResponse("Can't save graph", status=404)
 
+def delete_graph(request, graph_id):
+    if request.method == 'GET':
+        g = get_object_or_404(GraphDB, pk=graph_id)
+        g_name = g.name
+        g.delete()
+        return HttpResponse(f"Graph {g_name} deleted")
+
         
 def get_random_object(request, object_type):
     if request.method == 'GET':
@@ -120,11 +127,11 @@ def delete_files(request):
     return HttpResponse(f"deleted {count} files")
 
 def delete_graphs(request):
-    sessions = Graph.objects.values_list('session_key', flat=True).distinct()
+    sessions = GraphDB.objects.values_list('session_key', flat=True).distinct()
     count = 0
     for s in sessions:
         if not is_session_active(s):
-            deleted_count, _ = Graph.objects.filter(session_key=s).delete()
+            deleted_count, _ = GraphDB.objects.filter(session_key=s).delete()
             count += deleted_count
     return HttpResponse(f"deleted {count} graphs")
 

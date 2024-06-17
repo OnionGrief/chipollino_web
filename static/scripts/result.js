@@ -117,6 +117,6 @@ automata.forEach(element => {
                     return response.text();
                 })
                 .then(data => {})
-                .catch(error => console.error('Error saving graph:', error))
+                .catch(error => console.error('Error saving graph:', error));
         });
 });

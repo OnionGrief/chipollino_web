@@ -12,6 +12,7 @@ urlpatterns = [
     path('get_graph/<int:graph_id>/', views.get_graph, name='get_graph'),
     path('get_graph/<int:graph_id>/<slug:format_name>/', views.get_graph_format, name='get_graph_format'),
     path('add_graph/', views.add_graph, name='add_graph'),
+    path('delete_graph/<int:graph_id>/', views.delete_graph, name='delete_graph'),
     path('delete_graphs/', views.delete_graphs, name='delete_graphs'),
     # path('delete_files/', views.delete_files, name='delete_files'),
 ]

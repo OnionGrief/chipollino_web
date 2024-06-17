@@ -43,6 +43,7 @@ testGenerator.addEventListener('click', (event) => {
 
 
 var automaton_content = document.getElementById('automaton-content');
+var automaton_image = document.getElementById('automaton_image')
 format_list = [];
 const formatSelector = document.getElementById('format-selector');
 formatSelector.querySelectorAll('option').forEach(format => {
@@ -57,7 +58,7 @@ var curentGraphId = null;
 formatSelector.addEventListener('change', (event) => {
     const selectedValue = event.target.value;
     if (curentGraphId != null) {
-    fetch(`/get_graph/${curentGraphId}/${selectedValue}`)
+        fetch(`/get_graph/${curentGraphId}/${selectedValue}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('server error');
@@ -75,10 +76,10 @@ formatSelector.addEventListener('change', (event) => {
                 console.error(`Error getting format ${selectedValue} of graph ${curentGraphId} :`, error);
             });
 
-    if (format_list[selectedValue].editable == "True")
-        automaton_content.disabled = false;
-    else
-        automaton_content.disabled = true;
+        if (format_list[selectedValue].editable == "True")
+            automaton_content.disabled = false;
+        else
+            automaton_content.disabled = true;
     }
 });
 
@@ -100,11 +101,31 @@ graph_list.forEach(g_name => {
                     automaton_content.disabled = false;
                 else
                     automaton_content.disabled = true;
-                document.getElementById('automaton_image').innerHTML = data.svg;
+                    automaton_image.innerHTML = data.svg;
                 curentGraphId = g_id
             })
             .catch(error => {
                 console.error(`Error getting graph ${g_id} :`, error);
             });
     });
+});
+
+document.getElementById('delete_graph').addEventListener('click', (event) => {
+    if (curentGraphId != null) {
+    fetch(`/delete_graph/${curentGraphId}/`).then(response => {
+            if (!response.ok)
+                console.error('Error deleting graph');
+            return response.text();
+        })
+        .then(data => {
+            showAlert(data);
+            automaton_content.textContent = data.text;
+            automaton_image.innerHTML = '';
+            graph_list.forEach(g_name => {
+                if (g_name.dataset.value == curentGraphId)
+                    g_name.remove();
+            });
+        })
+        .catch(error => console.error('Error deleting graph:', error));
+    }
 });

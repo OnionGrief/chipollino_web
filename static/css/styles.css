@@ -40,3 +40,15 @@
         transform: rotate(360deg);
     }
 }
+
+.copy-button {
+    width: 17px;
+    cursor: pointer;
+    display: inline-flex;
+
+}
+
+.copy-button img {
+    width: 100%;
+    height: 100%;
+}

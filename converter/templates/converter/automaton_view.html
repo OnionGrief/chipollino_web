@@ -3,8 +3,7 @@
     <div class="object_txt">
         <div class="object_txt_header">
             <button class="save_graph">Save to storage</button>
-            <!-- <button>Download</button> -->
-            <div style="padding: 0;">
+            <div>
                 format:
 
                 <select class="format-selector">
@@ -13,6 +12,9 @@
                     {% endfor %}
 
                 </select>
+            </div>
+            <div class="copy-button">
+                <img src="{% static 'images/copy.svg' %}" alt="copy">
             </div>
         </div>
 

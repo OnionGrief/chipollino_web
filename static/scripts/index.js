@@ -164,7 +164,6 @@ document.getElementById('save_graph').addEventListener('click', (event) => {
 
 // перерисовка svg при изменении txt графа
 automaton_content.addEventListener('blur', function (event) {
-    const text = event.target.value;
     if (curentGraphId != null) {
         fetch('/get_svg_graph/', {
                 method: 'POST',
@@ -188,4 +187,15 @@ automaton_content.addEventListener('blur', function (event) {
                 console.error('Graph update error')
             });
     }
+});
+
+document.querySelector('.copy-button').addEventListener('click', (event) => {
+    // Создаем временный элемент для копирования текста
+    var tempInput = document.createElement('textarea');
+    tempInput.value = automaton_content.value;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    showAlert('Text copied');
 });

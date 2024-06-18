@@ -43,7 +43,8 @@ automata.forEach(element => {
         if (block.dataset.value == 'HTML')
             block.textContent = element.querySelector('.object_figure').innerHTML
 
-    element.querySelector('.format-selector').addEventListener('change', (event) => {
+    format_selector = element.querySelector('.format-selector')
+    format_selector.addEventListener('change', (event) => {
         const selectedValue = event.target.value;
         const blocks = element.querySelectorAll('.object_format');
 
@@ -87,6 +88,7 @@ automata.forEach(element => {
                 spinner.style.display = 'none';
             });
     });
+    
 
     save_graph_button = element.querySelector('.save_graph')
     if (save_graph_button)
@@ -121,4 +123,18 @@ automata.forEach(element => {
                 .then(data => {})
                 .catch(error => console.error('Error saving graph:', error));
         });
+
+    element.querySelector('.copy-button').addEventListener('click', (event) => {
+        // Создаем временный элемент для копирования текста
+        var tempInput = document.createElement('textarea');
+        for (const block of blocks)
+            if (block.dataset.value == format_selector.value)
+                tempInput.value = block.textContent;
+
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showAlert('Text copied');
+    });
 });

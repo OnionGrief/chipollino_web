@@ -63,12 +63,9 @@ def get_graph_format(request, graph_id, format_name):
     if request.method == 'GET':
         try:
             gDB = get_object_or_404(GraphDB, id=graph_id)
-            print(gDB.name)
             g = gDB.to_Graph()
-            print(g.name)
             format_list = formats_generator.map_format_list()
             res = format_list[format_name]['to'](g)
-            print(res)
             return JsonResponse({'text': res, 'editable': format_list[format_name]['editable']})
         except Exception:
             return HttpResponse("Can't get format " + format_name, status=404)

@@ -9,7 +9,9 @@ import graphviz
 # def get_format_funcs():
 #     return {}
 def get_format_list():
-    return [{'name': 'DSL', 'editable': True, 'to': to_dsl, 'from': from_dsl}, {'name': 'DOT', 'editable': False, 'to': to_dot}]
+    return [{'name': 'DSL', 'editable': True, 'to': to_dsl, 'from': from_dsl}, 
+            {'name': 'DOT', 'editable': False, 'to': to_dot},
+            {'name': 'JSON', 'editable': True, 'to': to_json, 'from': from_json}]
 def map_format_list():
     formats = {}
     for f in get_format_list():
@@ -25,7 +27,19 @@ def svg_graphviz(g: Graph):
 
 
 def to_json(graph: Graph):
-    return json.dumps({"nodes": list(graph.nodes), "edges": graph.edges}, indent=2, ensure_ascii=False)
+    json_nodes = [{"data": { "id": 'dummy', "label": ''}, "classes": 'dummy'}]
+    json_edges = []
+    for n in graph.nodes:
+        json_node = {"data": {"id": n["id"], "label": n["label"]}}
+        if n["is_double"]:
+            json_node["classes"] = 'doublecircle'
+        if n["is_init"]:
+            json_edges.append({"data": {"source": 'dummy', "target": n["id"], "label": ''}})
+        json_nodes.append(json_node)
+    for e in graph.edges:
+        json_edges.append({"data": {"source": e["source"], "target": e["target"], "label": e["label"]}})
+
+    return json.dumps({"nodes": json_nodes, "edges": json_edges}, indent=2, ensure_ascii=False)
 
 def to_dsl(graph: Graph):
     res = "NFA\n"
@@ -168,6 +182,33 @@ def from_dsl(text):
     except Exception:
         return None
     return Graph(nodes=nodes.values(), edges=edges, type=type)
+
+def from_json(json_graph):
+    g_data = json.loads(json_graph)
+    nodes, edges = {}, []
+    dummy = "dummy"
+
+    for n_data in g_data.nodes:
+        n = n_data["data"]
+        nodes[n["id"]] = {"id": n["id"], "label": n["label"], "is_double": False, "is_init": False}
+        if 'classes' in n_data:
+            if n_data["classes"] == 'doublecircle':
+                nodes[id]["is_double"] = True
+        if id == dummy:
+            assert(n_data["classes"] == 'dummy')
+    assert(dummy in nodes)
+    nodes.pop(dummy)
+    
+    count_init = 0
+    for e_data in g_data.edges:
+        e = e_data["data"]
+        edges.append({"source": e["source"], "target": e["target"], "label": e["label"]})
+        if e["source"] == dummy:
+            nodes[e["target"]]["is_init"] = True
+            count_init += 1
+    assert(count_init == 1)
+
+    return Graph(nodes=nodes.values(), edges=edges)
 
 
 # table formats

@@ -6,11 +6,14 @@ import graphviz
 
 # graph formats
 
+# def get_format_funcs():
+#     return {}
 def get_format_list():
-    return [{'name': 'DSL', 'editable': True, 'func': to_dsl}, {'name': 'DOT', 'editable': False, 'func': to_dot}]
+    return [{'name': 'DSL', 'editable': True, 'to': to_dsl, 'from': from_dsl}, {'name': 'DOT', 'editable': False, 'to': to_dot}]
 def map_format_list():
     formats = {}
     for f in get_format_list():
+        # f['to'] = get_format_funcs()[f['name']]
         formats[f['name']] = f
     return formats
 

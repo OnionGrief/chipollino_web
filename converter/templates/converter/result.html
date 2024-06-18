@@ -32,7 +32,11 @@
 <div class="resultblock" id="blockpdf" style="display: none;">
     <iframe id="pdf-viewer" width="100%" height="1000px"></iframe></div>
 <div class="resultblock" id="blocklatex" style="display: none;">
-    <a id="tex-download" href="#" download="report.tex">Скачать report.tex</a>
+    <div>
+        <a id="tex-download" href="#" download="report.tex">Скачать report.tex</a>
+        <a id="tex2-download" href="data:application/tex;charset=utf-8," download="report.tex">Скачать
+            rendered_report.tex</a>
+    </div>
     <pre id="tex-content" style="border: 1px solid rgb(160, 160, 160);">{{texresult}}</pre>
 </div>
 <div class="resultblock" id="blockhtml" style="display: block;">
@@ -60,5 +64,10 @@
 
 <script src="{% static 'scripts/script.js' %}"></script>
 <script src="{% static 'scripts/result.js' %}"></script>
+<script>
+    document.getElementById("tex-content")
+    document.getElementById("tex2-download").href = 
+        "data:application/tex;charset=utf-8," + encodeURIComponent({{rendered_tex | safe}});
+</script>
 
 {% endblock %}

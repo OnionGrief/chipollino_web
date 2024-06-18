@@ -24,7 +24,7 @@ def run_interpreter(request):
         if ok:
             tex_file = running_res
             result_list = chipollino_funcs.parse_tex(tex_file, graph_list, session_key = session_key)
-            return render(request, 'converter/result.html', {'success': True, 'test': text, 'texresult': tex_file, 'result_list': result_list})
+            return render(request, 'converter/result.html', {'success': True, 'test': text, 'texresult': tex_file, 'rendered_tex': repr(rendered_tex), 'result_list': result_list})
         else:
             if running_res:
                 return render(request, 'converter/result.html', {'test': running_res})
@@ -62,12 +62,29 @@ def get_graph(request, graph_id):
 def get_graph_format(request, graph_id, format_name):
     if request.method == 'GET':
         try:
-            g = get_object_or_404(GraphDB, id=graph_id).to_Graph()
+            gDB = get_object_or_404(GraphDB, id=graph_id)
+            print(gDB.name)
+            g = gDB.to_Graph()
+            print(g.name)
             format_list = formats_generator.map_format_list()
-            res = format_list[format_name]['func'](g)
+            res = format_list[format_name]['to'](g)
+            print(res)
             return JsonResponse({'text': res, 'editable': format_list[format_name]['editable']})
         except Exception:
             return HttpResponse("Can't get format " + format_name, status=404)
+
+def get_svg_graph(request):
+    if request.method == 'POST':
+        try:
+            req_body = json.loads(request.body)
+            graph_format = req_body.get('format', '')
+            assert(format_list[graph_format]['editable'])
+            graph_content = req_body.get('content', '')
+            format_list = formats_generator.map_format_list()
+            g = format_list[graph_format]['from'](graph_content)
+            return HttpResponse(formats_generator.svg_graphviz(g), content_type='image/svg+xml')
+        except Exception:
+            return HttpResponse("None")
 
 def add_graph(request):
     if request.method == 'POST':
@@ -81,6 +98,21 @@ def add_graph(request):
             g.name = graph_name
             g.save()
             return HttpResponse(f"Saved graph {graph_name}")
+        except Exception:
+            return HttpResponse("Can't save graph", status=404)
+
+def save_graph(request, graph_id):
+    if request.method == 'POST':
+        try:
+            req_body = json.loads(request.body)
+            graph_format = req_body.get('format', '')
+            assert(format_list[graph_format]['editable'])
+            graph_content = req_body.get('content', '')
+            gDB = get_object_or_404(GraphDB, id=graph_id)
+            format_list = formats_generator.map_format_list()
+            g = format_list[graph_format]['from'](graph_content)
+            gDB.update_from(g)
+            return HttpResponse(f"Saved graph {gDB.name}")
         except Exception:
             return HttpResponse("Can't save graph", status=404)
 

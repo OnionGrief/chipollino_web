@@ -18,6 +18,21 @@ class TemporaryFile(models.Model):
     def __str__(self):
         return self.path
 
+class Table:
+    def __init__(self, columns, rows):
+        self.columns = columns
+        self.rows = rows
+
+class Graph(): 
+    def __init__(self, nodes, edges, name="", id=0, type="NFA"):
+        self.nodes = nodes
+        self.edges = edges
+        self.name = name
+        self.id = id
+        self.type = type
+    def to_GraphDB(self):
+        return GraphDB(nodes=json.dumps(list(self.nodes)), edges=json.dumps(self.edges), name=self.name, type=self.type)
+
 
 class GraphDB(models.Model):
     nodes = models.JSONField(default=list)
@@ -39,19 +54,8 @@ class GraphDB(models.Model):
         return f'nodes: {self.nodes}\nedges:{self.edges}'
     def to_Graph(self):
         return Graph(id=self.id, nodes=json.loads(self.nodes), edges=json.loads(self.edges), name=self.name, type=self.type)
-
-class Table:
-    def __init__(self, columns, rows):
-        self.columns = columns
-        self.rows = rows
-
-class Graph(): 
-    def __init__(self, nodes, edges, name="", id=0, type="NFA"):
-        self.nodes = nodes
-        self.edges = edges
-        self.name = name
-        self.id = id
-        self.type = type
-    def to_GraphDB(self):
-        return GraphDB(id=self.id, nodes=json.dumps(list(self.nodes)), edges=json.dumps(self.edges), name=self.name, type=self.type)
+    def update_from(self, g: Graph):
+        self.nodes = json.dumps(list(g.nodes))
+        self.edges = json.dumps(g.edges)
+        self.type = g.type
 

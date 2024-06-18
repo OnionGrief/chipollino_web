@@ -175,6 +175,8 @@
 
     function addNode() {
         nodeId = prompt('Enter node id:');
+        if (!nodeId)
+            return;
         lockGraph();
         let start_pos = cy.getElementById('dummy').position();
         cy.add({
@@ -190,6 +192,8 @@
     function addEdge() {
         if (sourceNode != null && targetNode != null) {
             label = prompt('Enter edge label');
+            if (nodeId == null)
+                return;
             lockGraph();
             cy.add({
                 group: 'edges',

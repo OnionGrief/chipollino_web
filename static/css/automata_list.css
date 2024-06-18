@@ -1,5 +1,7 @@
 summary {
     font-size: x-large;
+    width: max-content;
+    cursor: pointer;
 }
 
 #automata_container {

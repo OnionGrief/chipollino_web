@@ -84,10 +84,11 @@ formatSelector.addEventListener('change', (event) => {
 });
 
 const graph_list = document.querySelectorAll('.graph_name')
+var prev_g_name = null;
 graph_list.forEach(g_name => {
     g_name.addEventListener('click', (event) => {
         const g_id = event.target.dataset.value;
-        fetch('/get_graph/' + g_id)
+        fetch(`/get_graph/${g_id}/`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('server error');
@@ -101,31 +102,90 @@ graph_list.forEach(g_name => {
                     automaton_content.disabled = false;
                 else
                     automaton_content.disabled = true;
-                    automaton_image.innerHTML = data.svg;
-                curentGraphId = g_id
+                automaton_image.innerHTML = data.svg;
+                curentGraphId = g_id;
             })
             .catch(error => {
                 console.error(`Error getting graph ${g_id} :`, error);
             });
+
+        if (prev_g_name)
+            prev_g_name.style.backgroundColor = '#e6e6e6';
+        prev_g_name = event.target;
+        event.target.style.backgroundColor = '#c1c1c1'
     });
 });
 
 document.getElementById('delete_graph').addEventListener('click', (event) => {
     if (curentGraphId != null) {
-    fetch(`/delete_graph/${curentGraphId}/`).then(response => {
-            if (!response.ok)
-                console.error('Error deleting graph');
-            return response.text();
-        })
-        .then(data => {
-            showAlert(data);
-            automaton_content.textContent = data.text;
-            automaton_image.innerHTML = '';
-            graph_list.forEach(g_name => {
-                if (g_name.dataset.value == curentGraphId)
-                    g_name.remove();
+        fetch(`/delete_graph/${curentGraphId}/`).then(response => {
+                if (!response.ok)
+                    console.error('Error deleting graph');
+                return response.text();
+            })
+            .then(data => {
+                showAlert(data);
+                automaton_content.textContent = data.text;
+                automaton_image.innerHTML = '';
+                graph_list.forEach(g_name => {
+                    if (g_name.dataset.value == curentGraphId)
+                        g_name.remove();
+                });
+            })
+            .catch(error => console.error('Error deleting graph:', error));
+    }
+});
+
+document.getElementById('save_graph').addEventListener('click', (event) => {
+    if (curentGraphId != null) {
+        fetch(`/save_graph/${curentGraphId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                },
+                body: JSON.stringify({
+                    "format": formatSelector.value,
+                    "content": automaton_content.value
+                })
+            })
+            .then(response => {
+                if (!response.ok)
+                    console.error('Error saving graph');
+                return response.text();
+            })
+            .then(data => {
+                showAlert(data);
+                // automaton_image.innerHTML = data.svg;
+            })
+            .catch(error => console.error('Error saving graph:', error));
+    }
+});
+
+// перерисовка svg при изменении txt графа
+automaton_content.addEventListener('blur', function (event) {
+    const text = event.target.value;
+    if (curentGraphId != null) {
+        fetch('/get_svg_graph/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                },
+                body: JSON.stringify({
+                    "format": formatSelector.value,
+                    "content": automaton_content.value
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data != "None")
+                    automaton_image.innerHTML = data;
+                else
+                    showAlert('invalid syntax');
+            })
+            .catch(e => {
+                console.error('Graph update error')
             });
-        })
-        .catch(error => console.error('Error deleting graph:', error));
     }
 });

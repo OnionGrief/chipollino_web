@@ -31,7 +31,7 @@ blockSelector.addEventListener('change', (event) => {
 });
 
 
-var tex_content = document.getElementById("tex-content").innerHTML;
+var tex_content = document.getElementById("tex-content").textContent;
 var downloadLink = document.getElementById("tex-download");
 downloadLink.href = "data:application/tex;charset=utf-8," + encodeURIComponent(tex_content);
 
@@ -93,6 +93,8 @@ automata.forEach(element => {
         save_graph_button.addEventListener('click', (event) => {
 
             graph_name = prompt("Enter graph's name:", '');
+            if (!graph_name)
+                return;
 
             dsl_content = "";
             for (const block of element.querySelectorAll('.object_format'))

@@ -2,7 +2,7 @@
     <form id="chipollino-form" action="/result/" method="post"">
         {% csrf_token %}
         <p class=" large_text">Input text:</p>
-        <textarea name="input-txt" id="input-txt"></textarea>
+        <textarea name="input-txt" id="input-txt" placeholder='RemEps.Thompson {abc|abb} !!'></textarea>
         <button type="submit" style="margin: 20px;">Run</button>
     </form>
     <div id="input-right-panel">
@@ -16,12 +16,12 @@
                 <div id="args_list">
                     <div class="gen_object" id="Regex">Regex</div>
                     <div class="gen_object" id="BackRefRegex">BackRefRegex</div>
-                    <div class="gen_object" id="NFA">NFA</div>
-                    <div class="gen_object" id="MFA">MFA</div>
+                    <!-- <div class="gen_object" id="NFA">NFA</div>
+                    <div class="gen_object" id="MFA">MFA</div> -->
                 </div>
             </div>
             <p id="generator_result">&nbsp;</p>
         </div>
-        <button id="randomtest">Generate test</button>
+        <!-- <button id="randomtest">Generate test</button> -->
     </div>
 </div>

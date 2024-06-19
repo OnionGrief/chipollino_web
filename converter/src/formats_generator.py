@@ -188,9 +188,10 @@ def from_json(json_graph):
     nodes, edges = {}, []
     dummy = "dummy"
 
-    for n_data in g_data.nodes:
+    for n_data in g_data["nodes"]:
         n = n_data["data"]
-        nodes[n["id"]] = {"id": n["id"], "label": n["label"], "is_double": False, "is_init": False}
+        id = n["id"]
+        nodes[id] = {"id": id, "label": n["label"], "is_double": False, "is_init": False}
         if 'classes' in n_data:
             if n_data["classes"] == 'doublecircle':
                 nodes[id]["is_double"] = True
@@ -200,14 +201,14 @@ def from_json(json_graph):
     nodes.pop(dummy)
     
     count_init = 0
-    for e_data in g_data.edges:
+    for e_data in g_data["edges"]:
         e = e_data["data"]
-        edges.append({"source": e["source"], "target": e["target"], "label": e["label"]})
         if e["source"] == dummy:
             nodes[e["target"]]["is_init"] = True
             count_init += 1
+        else:
+            edges.append({"source": e["source"], "target": e["target"], "label": e["label"]})
     assert(count_init == 1)
-
     return Graph(nodes=nodes.values(), edges=edges)
 
 

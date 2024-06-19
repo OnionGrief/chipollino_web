@@ -32,18 +32,42 @@ generatorSelector.forEach(gen_obj => {
     });
 });
 
-const testGenerator = document.getElementById('randomtest');
+/*const testGenerator = document.getElementById('randomtest');
 testGenerator.addEventListener('click', (event) => {
     fetch('/generator/' + 'Test')
         .then(response => response.text())
         .then(data => {
             document.getElementById('input-txt').value = data;
         });
-});
+});*/
 
 
 var automaton_content = document.getElementById('automaton-content');
-var automaton_image = document.getElementById('automaton_image')
+var automaton_image = document.getElementById('automaton-svg');
+var editBtn = document.getElementById('edit');
+var renderBtn = document.getElementById('render');
+const cy_container = document.getElementById('cy-block');
+
+function changeMode(mode) {
+    if (mode == 'none') {
+        automaton_image.hidden = true;
+        cy_container.hidden = true;
+        editBtn.disabled = true;
+        renderBtn.disabled = true;
+    } else if (mode == 'svg') {
+        automaton_image.hidden = false;
+        cy_container.hidden = true;
+        editBtn.disabled = false;
+        renderBtn.disabled = true;
+    } else if (mode == 'cy') {
+        automaton_image.hidden = true;
+        cy_container.hidden = false;
+        editBtn.disabled = true;
+        renderBtn.disabled = false;
+    }
+}
+changeMode('none');
+
 format_list = [];
 const formatSelector = document.getElementById('format-selector');
 formatSelector.querySelectorAll('option').forEach(format => {
@@ -60,9 +84,8 @@ formatSelector.addEventListener('change', (event) => {
     if (curentGraphId != null) {
         fetch(`/get_graph/${curentGraphId}/${selectedValue}`)
             .then(response => {
-                if (!response.ok) {
+                if (!response.ok) 
                     throw new Error('server error');
-                }
                 return response.json();
             })
             .then(data => {
@@ -71,6 +94,7 @@ formatSelector.addEventListener('change', (event) => {
                     automaton_content.disabled = false;
                 else
                     automaton_content.disabled = true;
+                changeMode('svg');
             })
             .catch(error => {
                 console.error(`Error getting format ${selectedValue} of graph ${curentGraphId} :`, error);
@@ -90,9 +114,8 @@ graph_list.forEach(g_name => {
         const g_id = event.target.dataset.value;
         fetch(`/get_graph/${g_id}/`)
             .then(response => {
-                if (!response.ok) {
+                if (!response.ok)
                     throw new Error('server error');
-                }
                 return response.json();
             })
             .then(data => {
@@ -104,6 +127,7 @@ graph_list.forEach(g_name => {
                     automaton_content.disabled = true;
                 automaton_image.innerHTML = data.svg;
                 curentGraphId = g_id;
+                changeMode('svg');
             })
             .catch(error => {
                 console.error(`Error getting graph ${g_id} :`, error);
@@ -131,6 +155,7 @@ document.getElementById('delete_graph').addEventListener('click', (event) => {
                     if (g_name.dataset.value == curentGraphId)
                         g_name.remove();
                 });
+                changeMode('none');
             })
             .catch(error => console.error('Error deleting graph:', error));
     }
@@ -178,10 +203,12 @@ automaton_content.addEventListener('blur', function (event) {
             })
             .then(response => response.text())
             .then(data => {
-                if (data != "None")
+                if (data != "None") {
                     automaton_image.innerHTML = data;
-                else
+                    changeMode('svg');
+                } else {
                     showAlert('invalid syntax');
+                }
             })
             .catch(e => {
                 console.error('Graph update error')

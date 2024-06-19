@@ -2,10 +2,11 @@
 
 {% load static %}
 
-{% block css %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 <link rel="stylesheet" href="{% static 'css/input_page.css' %}">
 <link rel="stylesheet" href="{% static 'css/automata_list.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.29.2/cytoscape.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -19,13 +20,8 @@
     {% include 'converter/automata_list.html' %}
 </details>
 
-{% comment %} <h1>Страница приложения generator</h1>
-<a href="{% url 'converter:generator' %}">Генератор</a> {% endcomment %}
-
-<!-- <script>
-    const format_list = "{{format_list}}"
-</script> -->
 <script src="{% static 'scripts/script.js' %}"></script>
 <script src="{% static 'scripts/index.js' %}"></script>
+<script src="{% static 'scripts/cytoscape.js' %}"></script>
 
 {% endblock %}

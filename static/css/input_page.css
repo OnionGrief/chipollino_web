@@ -10,7 +10,8 @@
     display: flex;
     flex-direction: column;
     padding: 30px;
-    justify-content: space-evenly;
+    /* justify-content: space-evenly; */
+    justify-content: space-around;
 }
 
 

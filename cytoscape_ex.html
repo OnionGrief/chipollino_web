@@ -36,7 +36,7 @@
         ],
         edges: [
         { data: { source: 'dummy', target: 'start', label: ''} },
-        { data: { source: 'start', target: 'a', label: 'to A' } },
+        { data: { source: 'start', target: 'a', label: 'ε' } },
             { data: { source: 'a', target: 'a', label: 'A to A' } },
             { data: { source: 'b', target: 'b', label: 'B to B' } },
             { data: { source: 'a', target: 'b', label: 'A to B' } },
@@ -92,14 +92,10 @@
                     'color': '#000',
                     'loop-direction': '0deg',
                     'loop-sweep': '25deg',
+                    'z-index': 2
                 }
             }
-        ],
-        layout: {
-            name: 'grid',
-            rows: 1
-        }
-    });
+        ]});
 
     layout_settings = {
         name: 'breadthfirst',
@@ -109,16 +105,25 @@
             return {x: position.y, y: position.x}; // Swap x and y to make it horizontal
         }
     }
+    var dummyId = 'dummy';
+    var startId = null;
 
     cy.layout(layout_settings).run();
 
-    cy.nodes().forEach(function (node) {
+    function set_size(node) {
         const labelLength = node.data('label').length;
         const width = Math.max(20, Math.min(50, labelLength * 7));
         node.style('width', width);
         node.style('height', width);
-    });
+    }
 
+    cy.nodes().forEach(function (node) {
+        set_size(node);
+    });
+    cy.edges().forEach(function (edge) {
+        if (edge.source().id() == dummyId)
+            startId = edge.target().id();
+    });
 
     
     function lockGraph() {
@@ -139,6 +144,8 @@
     // Обработчик выбора узлов
     cy.on('tap', 'node', function(event) {
         var node = event.target;
+        if (node.id() == dummyId)
+            return;
         if (sourceNode === null && targetNode === null) {
             sourceNode = node;
             sourceNode.style('border-color', 'green');
@@ -156,16 +163,20 @@
     });
 
     cy.on('tap', 'edge', function(event) {
+        if (event.target.source().id() == dummyId)
+            return;
         selectedElement = event.target;
     });
 
     document.addEventListener('keydown', function(event) {
-        if (event.key === 'Delete' && selectedElement) {
+        if (event.key === 'Delete' && selectedElement && selectedElement.id() != startId) {
             lockGraph()
+            if (selectedElement == sourceNode)
+                sourceNode = null;
+            if (selectedElement == targetNode)
+                targetNode = null;
             cy.remove(selectedElement);
             selectedElement = null;
-            sourceNode = null;
-            targetNode = null;
             cy.layout(layout_settings).run();
             unlockGraph()
         }
@@ -178,13 +189,14 @@
         if (!nodeId)
             return;
         lockGraph();
-        let start_pos = cy.getElementById('dummy').position();
-        cy.add({
+        let start_pos = cy.getElementById(startId).position();
+        a = cy.add({
             group: 'nodes',
             data: { id: nodeId, label: nodeId},
-            position: {x: start_pos.x + 50, y: start_pos.y - 100},
+            position: {x: start_pos.x, y: start_pos.y - 100},
             locked: true,
         });
+        set_size(a);
         cy.layout(layout_settings).run();
         unlockGraph();
     }
@@ -192,7 +204,7 @@
     function addEdge() {
         if (sourceNode != null && targetNode != null) {
             label = prompt('Enter edge label');
-            if (nodeId == null)
+            if (label == null)
                 return;
             lockGraph();
             cy.add({
@@ -214,6 +226,38 @@
             else 
                 selectedElement.addClass('doublecircle');
 }
+
+function getGraphJSON() {
+            // Получение всех узлов и ребер
+            var nodes = cy.nodes().map(function(node) {
+                node_info = {
+                    data: {
+                        id: node.data('id'),
+                        label: node.data('label')
+                    }
+                };
+                if (node.classes().length > 0)
+                    node_info['classes'] = node.classes()[0]
+                return node_info;
+            });
+
+            var edges = cy.edges().map(function(edge) {
+                return {
+                    data: {
+                        source: edge.data('source'),
+                        target: edge.data('target'),
+                        label: edge.data('label')
+                    }
+                };
+            });
+
+            return JSON.stringify({nodes: nodes, edges: edges}, null, 2);
+        }
+
+        cy.ready(function() {
+            var jsonGraph = getGraphJSON();
+            console.log("Graph JSON:", jsonGraph);
+        });
 
     </script>
 </body>

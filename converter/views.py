@@ -70,14 +70,27 @@ def get_graph_format(request, graph_id, format_name):
         except Exception:
             return HttpResponse("Can't get format " + format_name, status=404)
 
+def convert_graph_format(request, format_name):
+    if request.method == 'POST':
+        try:
+            req_body = json.loads(request.body)
+            from_format = req_body.get('format', '')
+            graph_content = req_body.get('content', '')
+            format_list = formats_generator.map_format_list()
+            g = format_list[from_format]['from'](graph_content)
+            res = format_list[format_name]['to'](g)
+            return JsonResponse({'text': res, 'svg': formats_generator.svg_graphviz(g)})
+        except Exception:
+            return HttpResponse("Can't get format " + format_name, status=404)  
+
 def get_svg_graph(request):
     if request.method == 'POST':
         try:
             req_body = json.loads(request.body)
             graph_format = req_body.get('format', '')
-            assert(format_list[graph_format]['editable'])
             graph_content = req_body.get('content', '')
             format_list = formats_generator.map_format_list()
+            assert(format_list[graph_format]['editable'])
             g = format_list[graph_format]['from'](graph_content)
             return HttpResponse(formats_generator.svg_graphviz(g), content_type='image/svg+xml')
         except Exception:

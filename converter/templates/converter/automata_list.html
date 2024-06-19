@@ -31,6 +31,16 @@
     </div>
 
     <div id="automaton_image">
-
+        <div id="buttons">
+            <button id="render" disabled>Render</button>
+            <button id="edit" disabled>Edit</button>
+        </div>
+        <div id="automaton-svg"></div>
+        <div id="cy-block" hidden>
+            <div id="cy"></div>
+            <button onclick="addNode()">Add Node</button>
+            <button onclick="addEdge()">Add Edge</button>
+            <button onclick="changeFinality()">Change Finality</button>
+        </div>
     </div>
 </div>

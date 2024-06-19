@@ -17,7 +17,7 @@ blockSelector.addEventListener('change', (event) => {
                         pdfLoaded = true;
                     })
                     .catch(error => {
-                        alert('Failed to load PDF.');
+                        showAlert('Failed to load PDF');
                     })
                     .finally(() => {
                         spinner.style.display = 'none';
@@ -88,7 +88,7 @@ automata.forEach(element => {
                 spinner.style.display = 'none';
             });
     });
-    
+
 
     save_graph_button = element.querySelector('.save_graph')
     if (save_graph_button)
@@ -120,7 +120,9 @@ automata.forEach(element => {
                         console.error('Error saving graph');
                     return response.text();
                 })
-                .then(data => {})
+                .then(data => {
+                    showAlert('Graph saved');
+                })
                 .catch(error => console.error('Error saving graph:', error));
         });
 

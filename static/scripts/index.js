@@ -46,24 +46,31 @@ var automaton_content = document.getElementById('automaton-content');
 var automaton_image = document.getElementById('automaton-svg');
 var editBtn = document.getElementById('edit');
 var renderBtn = document.getElementById('render');
+var resetBtn = document.getElementById('reset');
 const cy_container = document.getElementById('cy-block');
 
 function changeMode(mode) {
     if (mode == 'none') {
         automaton_image.hidden = true;
         cy_container.hidden = true;
-        editBtn.disabled = true;
-        renderBtn.disabled = true;
+        editBtn.hidden = true;
+        renderBtn.hidden = true;
+        resetBtn.hidden = true;
     } else if (mode == 'svg') {
         automaton_image.hidden = false;
         cy_container.hidden = true;
-        editBtn.disabled = false;
-        renderBtn.disabled = true;
+        if (format_list[formatSelector.value].editable)
+            editBtn.hidden = false;
+        else 
+            editBtn.hidden = true;
+        renderBtn.hidden = true;
+        resetBtn.hidden = true;
     } else if (mode == 'cy') {
         automaton_image.hidden = true;
         cy_container.hidden = false;
-        editBtn.disabled = true;
-        renderBtn.disabled = false;
+        editBtn.hidden = true;
+        renderBtn.hidden = false;
+        resetBtn.hidden = false;
     }
 }
 changeMode('none');
@@ -73,7 +80,7 @@ const formatSelector = document.getElementById('format-selector');
 formatSelector.querySelectorAll('option').forEach(format => {
     format_list[format.value] = {
         name: format.value,
-        editable: format.dataset.editable
+        editable: format.dataset.editable == 'True' ? true : false
     };
 });
 
@@ -94,6 +101,7 @@ formatSelector.addEventListener('change', (event) => {
                     automaton_content.disabled = false;
                 else
                     automaton_content.disabled = true;
+                automaton_image.innerHTML = data.svg;
                 changeMode('svg');
             })
             .catch(error => {

@@ -9,3 +9,9 @@ function showAlert(text) {
         alertBox.style.opacity = 0;
     }, 1500);
 }
+
+function assert(condition, message) {
+    if (!condition) {
+        throw new Error(message || "Assertion failed");
+    }
+}

@@ -66,7 +66,8 @@ def get_graph_format(request, graph_id, format_name):
             g = gDB.to_Graph()
             format_list = formats_generator.map_format_list()
             res = format_list[format_name]['to'](g)
-            return JsonResponse({'text': res, 'editable': format_list[format_name]['editable']})
+            return JsonResponse({'text': res, 'editable': format_list[format_name]['editable'], 
+                                'svg': formats_generator.svg_graphviz(g)})
         except Exception:
             return HttpResponse("Can't get format " + format_name, status=404)
 

@@ -62,6 +62,7 @@ var startId = null;
 var sourceNode = null;
 var targetNode = null;
 var selectedElement = null;
+var prev_json;
 
 function set_size(node) {
     const labelLength = node.data('label').length;
@@ -153,6 +154,7 @@ function changeFinality() {
 
 
 function get_cy_view(json_data) {
+    prev_json = json_data;
     const graphData = JSON.parse(json_data);
     cy = cytoscape({
         container: cy_elem,
@@ -235,7 +237,18 @@ editBtn.addEventListener('click', (event) => {
     json_content = "";
     try {
         if (curentGraphId != null) {
-            fetch(`/get_graph/${curentGraphId}/JSON`)
+            assert(format_list[formatSelector.value].editable, "format is not editable");
+            fetch(`/convert_graph_format/JSON/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                    },
+                    body: JSON.stringify({
+                        "format": formatSelector.value,
+                        "content": automaton_content.value
+                    })
+                })
                 .then(response => {
                     if (!response.ok)
                         throw new Error('server error');
@@ -260,7 +273,9 @@ renderBtn.addEventListener('click', (event) => {
     json_content = "";
     try {
         if (curentGraphId != null) {
-            fetch(`/convert_graph_format/${formatSelector.value}/`, {
+            format = format_list[formatSelector.value].editable ? formatSelector.value : 'DSL';
+            formatSelector.value = format;
+            fetch(`/convert_graph_format/${format}/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -288,5 +303,14 @@ renderBtn.addEventListener('click', (event) => {
     } catch (error) {
         changeMode('cy');
         showAlert("Can't render graph")
+    }
+});
+
+resetBtn.addEventListener('click', (event) => {
+    try {
+        get_cy_view(prev_json);
+    } catch (error) {
+        changeMode('svg');
+        showAlert("Can't create graph")
     }
 });

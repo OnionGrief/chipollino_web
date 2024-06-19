@@ -89,7 +89,7 @@ formatSelector.addEventListener('change', (event) => {
                 return response.json();
             })
             .then(data => {
-                automaton_content.textContent = data.text;
+                automaton_content.value = data.text;
                 if (data.editable)
                     automaton_content.disabled = false;
                 else
@@ -119,7 +119,7 @@ graph_list.forEach(g_name => {
                 return response.json();
             })
             .then(data => {
-                automaton_content.textContent = data.text;
+                automaton_content.value = data.text;
                 formatSelector.value = data.format;
                 if (data.editable)
                     automaton_content.disabled = false;
@@ -149,7 +149,7 @@ document.getElementById('delete_graph').addEventListener('click', (event) => {
             })
             .then(data => {
                 showAlert(data);
-                automaton_content.textContent = data.text;
+                automaton_content.value = '';
                 automaton_image.innerHTML = '';
                 graph_list.forEach(g_name => {
                     if (g_name.dataset.value == curentGraphId)

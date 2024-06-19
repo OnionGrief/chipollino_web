@@ -116,12 +116,13 @@ def save_graph(request, graph_id):
         try:
             req_body = json.loads(request.body)
             graph_format = req_body.get('format', '')
+            format_list = formats_generator.map_format_list()
             assert(format_list[graph_format]['editable'])
             graph_content = req_body.get('content', '')
             gDB = get_object_or_404(GraphDB, id=graph_id)
-            format_list = formats_generator.map_format_list()
             g = format_list[graph_format]['from'](graph_content)
             gDB.update_from(g)
+            gDB.save()
             return HttpResponse(f"Saved graph {gDB.name}")
         except Exception:
             return HttpResponse("Can't save graph", status=404)

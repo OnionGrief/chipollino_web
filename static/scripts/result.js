@@ -121,7 +121,7 @@ automata.forEach(element => {
                     return response.text();
                 })
                 .then(data => {
-                    showAlert('Graph saved');
+                    showAlert(data);
                 })
                 .catch(error => console.error('Error saving graph:', error));
         });

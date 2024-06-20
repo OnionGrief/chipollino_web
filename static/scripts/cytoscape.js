@@ -101,7 +101,7 @@ document.addEventListener('keydown', function (event) {
 
 function addNode() {
     nodeId = prompt('Enter node id:');
-    if (!nodeId)
+    if (!nodeId || nodeId == "")
         return;
     lockGraph();
     let start_pos = cy.getElementById(startId).position();
@@ -238,17 +238,10 @@ editBtn.addEventListener('click', (event) => {
     try {
         if (curentGraphId != null) {
             assert(format_list[formatSelector.value].editable, "format is not editable");
-            fetch(`/convert_graph_format/JSON/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
-                    },
-                    body: JSON.stringify({
-                        "format": formatSelector.value,
-                        "content": automaton_content.value
-                    })
-                })
+            fetch(`/convert_graph_format/JSON/`, make_post_body(header, {
+                    "format": formatSelector.value,
+                    "content": automaton_content.value
+                }))
                 .then(response => {
                     if (!response.ok)
                         throw new Error('server error');
@@ -275,17 +268,10 @@ renderBtn.addEventListener('click', (event) => {
         if (curentGraphId != null) {
             format = format_list[formatSelector.value].editable ? formatSelector.value : 'DSL';
             formatSelector.value = format;
-            fetch(`/convert_graph_format/${format}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
-                    },
-                    body: JSON.stringify({
-                        "format": 'JSON',
-                        "content": getGraphJSON()
-                    })
-                })
+            fetch(`/convert_graph_format/${format}/`, make_post_body(header, {
+                    "format": 'JSON',
+                    "content": getGraphJSON()
+                }))
                 .then(response => {
                     if (!response.ok)
                         throw new Error('server error');

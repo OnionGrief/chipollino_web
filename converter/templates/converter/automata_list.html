@@ -1,7 +1,7 @@
 {% load static %}
 <div id="automata_container">
     <div id="automata_list">
-        <ul>
+        <ul id="ul_graph_list">
             {% for graph in graph_list %}
             <li class="graph_name" data-value={{graph.id}}>{{graph.name}}</li>
             {% endfor %}

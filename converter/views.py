@@ -101,7 +101,7 @@ def add_graph(request):
     if request.method == 'POST':
         try:
             req_body = json.loads(request.body)
-            graph_name = req_body.get('name', '')
+            graph_name = req_body.get('name', '0')
             dsl_content = req_body.get('dsl_content', '')
             GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name).delete()
             g = formats_generator.from_dsl(dsl_content).to_GraphDB()
@@ -111,6 +111,19 @@ def add_graph(request):
             return HttpResponse(f"Saved graph {graph_name}")
         except Exception:
             return HttpResponse("Can't save graph", status=404)
+
+def create_graph(request):
+    if request.method == 'POST':
+        try:
+            graph_name = json.loads(request.body).get('name', '0')
+            if len(GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name)) > 0:
+                return HttpResponse(f"Name {graph_name} already exists", status=404)
+            g = Graph([{"id": 0, "label": "S", "is_init": True, "is_double": False}], [], graph_name).to_GraphDB()
+            g.session_key = request.session.session_key
+            g.save()
+            return JsonResponse({"id": g.id})
+        except Exception:
+            return HttpResponse("Can't create graph", status=404)
 
 def save_graph(request, graph_id):
     if request.method == 'POST':

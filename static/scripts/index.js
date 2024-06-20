@@ -48,6 +48,10 @@ var editBtn = document.getElementById('edit');
 var renderBtn = document.getElementById('render');
 var resetBtn = document.getElementById('reset');
 const cy_container = document.getElementById('cy-block');
+const header = {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+}
 
 function changeMode(mode) {
     if (mode == 'none') {
@@ -61,7 +65,7 @@ function changeMode(mode) {
         cy_container.hidden = true;
         if (format_list[formatSelector.value].editable)
             editBtn.hidden = false;
-        else 
+        else
             editBtn.hidden = true;
         renderBtn.hidden = true;
         resetBtn.hidden = true;
@@ -91,7 +95,7 @@ formatSelector.addEventListener('change', (event) => {
     if (curentGraphId != null) {
         fetch(`/get_graph/${curentGraphId}/${selectedValue}`)
             .then(response => {
-                if (!response.ok) 
+                if (!response.ok)
                     throw new Error('server error');
                 return response.json();
             })
@@ -115,37 +119,69 @@ formatSelector.addEventListener('change', (event) => {
     }
 });
 
+function on_graph_name_click(event) {
+    const g_id = event.target.dataset.value;
+    fetch(`/get_graph/${g_id}/`)
+        .then(response => {
+            if (!response.ok)
+                throw new Error('server error');
+            return response.json();
+        })
+        .then(data => {
+            automaton_content.value = data.text;
+            formatSelector.value = data.format;
+            if (data.editable)
+                automaton_content.disabled = false;
+            else
+                automaton_content.disabled = true;
+            automaton_image.innerHTML = data.svg;
+            curentGraphId = g_id;
+            changeMode('svg');
+
+            if (prev_g_name)
+                prev_g_name.style.backgroundColor = '#e6e6e6';
+            prev_g_name = event.target;
+            event.target.style.backgroundColor = '#c1c1c1'
+        })
+        .catch(error => {
+            console.error(`Error getting graph ${g_id} :`, error);
+        });
+}
 const graph_list = document.querySelectorAll('.graph_name')
 var prev_g_name = null;
 graph_list.forEach(g_name => {
-    g_name.addEventListener('click', (event) => {
-        const g_id = event.target.dataset.value;
-        fetch(`/get_graph/${g_id}/`)
-            .then(response => {
-                if (!response.ok)
-                    throw new Error('server error');
-                return response.json();
-            })
-            .then(data => {
-                automaton_content.value = data.text;
-                formatSelector.value = data.format;
-                if (data.editable)
-                    automaton_content.disabled = false;
-                else
-                    automaton_content.disabled = true;
-                automaton_image.innerHTML = data.svg;
-                curentGraphId = g_id;
-                changeMode('svg');
-            })
-            .catch(error => {
-                console.error(`Error getting graph ${g_id} :`, error);
-            });
+    g_name.onclick = on_graph_name_click;
+});
 
-        if (prev_g_name)
-            prev_g_name.style.backgroundColor = '#e6e6e6';
-        prev_g_name = event.target;
-        event.target.style.backgroundColor = '#c1c1c1'
-    });
+document.getElementById('add-button').addEventListener('click', (event) => {
+    const g_name = prompt('Enter graph name:');
+    if (!isValidFilename(g_name))
+        return;
+    fetch('/create_graph/', make_post_body(header, {
+            "name": g_name
+        }))
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(e => {
+                    if (e.length < 50) showAlert(e);
+                    throw new Error(e)
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            const new_elem = document.createElement('li');
+            new_elem.className = 'graph_name';
+            new_elem.innerText = g_name;
+            new_elem.dataset.value = data.id;
+            document.getElementById("ul_graph_list").appendChild(new_elem);
+            new_elem.onclick = on_graph_name_click;
+            new_elem.click();
+            showAlert(`Graph ${g_name} added`);
+        })
+        .catch(error => {
+            console.error(`Error adding graph ${g_name} :`, error);
+        });
 });
 
 document.getElementById('delete_graph').addEventListener('click', (event) => {
@@ -171,17 +207,10 @@ document.getElementById('delete_graph').addEventListener('click', (event) => {
 
 document.getElementById('save_graph').addEventListener('click', (event) => {
     if (curentGraphId != null) {
-        fetch(`/save_graph/${curentGraphId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
-                },
-                body: JSON.stringify({
-                    "format": formatSelector.value,
-                    "content": automaton_content.value
-                })
-            })
+        fetch(`/save_graph/${curentGraphId}/`, make_post_body(header, {
+                "format": formatSelector.value,
+                "content": automaton_content.value
+            }))
             .then(response => {
                 if (!response.ok)
                     console.error('Error saving graph');
@@ -198,17 +227,10 @@ document.getElementById('save_graph').addEventListener('click', (event) => {
 // перерисовка svg при изменении txt графа
 automaton_content.addEventListener('blur', function (event) {
     if (curentGraphId != null) {
-        fetch('/get_svg_graph/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
-                },
-                body: JSON.stringify({
-                    "format": formatSelector.value,
-                    "content": automaton_content.value
-                })
-            })
+        fetch('/get_svg_graph/', make_post_body(header, {
+                "format": formatSelector.value,
+                "content": automaton_content.value
+            }))
             .then(response => response.text())
             .then(data => {
                 if (data != "None") {

@@ -35,6 +35,10 @@ var tex_content = document.getElementById("tex-content").textContent;
 var downloadLink = document.getElementById("tex-download");
 downloadLink.href = "data:application/tex;charset=utf-8," + encodeURIComponent(tex_content);
 
+const header = {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+}
 
 const automata = document.querySelectorAll('.object_view');
 automata.forEach(element => {
@@ -64,17 +68,9 @@ automata.forEach(element => {
             if (block.dataset.value == 'LaTeX')
                 tex_content = block.textContent;
 
-        fetch('/tex_view/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]')
-                        .value
-                },
-                body: JSON.stringify({
-                    "tex_content": tex_content
-                })
-            })
+        fetch('/tex_view/', make_post_body(header, {
+                "tex_content": tex_content
+            }))
             .then(response => {
                 if (response.ok)
                     element.querySelector('.get_tex_view').disabled = true;
@@ -97,24 +93,18 @@ automata.forEach(element => {
             graph_name = prompt("Enter graph's name:", '');
             if (!graph_name)
                 return;
+            if (!isValidFilename(g_name))
+                return;
 
             dsl_content = "";
             for (const block of element.querySelectorAll('.object_format'))
                 if (block.dataset.value == 'DSL')
                     dsl_content = block.textContent;
 
-            fetch('/add_graph/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]')
-                            .value
-                    },
-                    body: JSON.stringify({
-                        "name": graph_name,
-                        "dsl_content": dsl_content
-                    })
-                })
+            fetch('/add_graph/', make_post_body(header, {
+                    "name": graph_name,
+                    "dsl_content": dsl_content
+                }))
                 .then(response => {
                     if (!response.ok)
                         console.error('Error saving graph');

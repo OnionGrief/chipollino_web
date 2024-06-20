@@ -15,3 +15,16 @@ function assert(condition, message) {
         throw new Error(message || "Assertion failed");
     }
 }
+
+function isValidFilename(filename) {
+    const regex = /^[a-zA-Z0-9_\-\. ~@#\$%\^]+$/;
+    return filename && regex.test(filename);
+}
+
+function make_post_body(header, body) {
+    return {
+        method: 'POST',
+        headers: header,
+        body: JSON.stringify(body)
+    };
+}

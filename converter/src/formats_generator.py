@@ -3,6 +3,7 @@ import json
 import re
 from converter.src import tex_parser
 import graphviz
+import pydot
 
 # graph formats
 
@@ -10,7 +11,10 @@ import graphviz
 #     return {}
 def get_format_list():
     return [{'name': 'DSL', 'editable': True, 'to': to_dsl, 'from': from_dsl}, 
-            {'name': 'DOT', 'editable': False, 'to': to_dot},
+            {'name': 'DOT', 'editable': True, 'to': to_dot, 'from': from_dot},
+            {'name': 'GDF', 'editable': False, 'to': to_gdf},
+            {'name': 'GEXF', 'editable': False, 'to': to_gexf},
+            {'name': 'GML', 'editable': False, 'to': to_gml},
             {'name': 'JSON', 'editable': True, 'to': to_json, 'from': from_json}]
 def map_format_list():
     formats = {}
@@ -20,6 +24,7 @@ def map_format_list():
     return formats
 
 def dot_to_svg(dot_source):
+    print(dot_source)
     svg_txt = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
     return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%"', svg_txt)
 def svg_graphviz(g: Graph):
@@ -191,14 +196,13 @@ def from_json(json_graph):
     for n_data in g_data["nodes"]:
         n = n_data["data"]
         id = n["id"]
-        nodes[id] = {"id": id, "label": n["label"], "is_double": False, "is_init": False}
+        if id == dummy:
+            assert(n_data["classes"] == 'dummy')
+        else:
+            nodes[id] = {"id": id, "label": n["label"], "is_double": False, "is_init": False}
         if 'classes' in n_data:
             if n_data["classes"] == 'doublecircle':
                 nodes[id]["is_double"] = True
-        if id == dummy:
-            assert(n_data["classes"] == 'dummy')
-    assert(dummy in nodes)
-    nodes.pop(dummy)
     
     count_init = 0
     for e_data in g_data["edges"]:
@@ -209,6 +213,41 @@ def from_json(json_graph):
         else:
             edges.append({"source": e["source"], "target": e["target"], "label": e["label"]})
     assert(count_init == 1)
+    return Graph(nodes=nodes.values(), edges=edges)
+
+def from_dot(dot_graph):
+    graph = pydot.graph_from_dot_data(dot_graph)[0]
+    assert(graph.get_graph_type() == "digraph")
+    nodes, edges = {}, []
+    
+    dummyId = ""
+    count_dummy = 0
+    count_start = 0
+    for node in graph.get_nodes():
+        id = node.get_name()
+        if node.get_shape() == "none":
+            dummyId = id
+            count_dummy += 1
+        elif id != "node":
+            label = (node.get_label() if node.get_label() else id).replace('"', '')
+            nodes[id] = {"id": id, "label": label, "is_double": False, "is_init": False}
+        if node.get_shape() == "doublecircle":
+            nodes[id]["is_double"] = True
+    assert(count_dummy == 1)
+
+    for edge in graph.get_edges():
+        source, target = edge.get_source(), edge.get_destination()
+        if source == dummyId:
+            count_start += 1
+            nodes[target]["is_init"] = True
+        else:
+            assert(edge.get_label())
+            label = edge.get_label().replace('"', '')
+            edges.append({"source": source, "target": target, "label": label})
+        for n in [source, target]:
+            if n not in nodes and n != dummyId:
+                nodes[n] = {"id": n, "label": n, "is_double": False, "is_init": False}
+    assert(count_start == 1)
     return Graph(nodes=nodes.values(), edges=edges)
 
 

@@ -133,7 +133,12 @@ STATICFILES_DIRS = [
    BASE_DIR / "config",
 ]
 
-# STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR / "collected_static"
+
+if DEBUG:
+    CONFIG_DIR = BASE_DIR / 'config'
+else:
+    CONFIG_DIR = STATIC_ROOT
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

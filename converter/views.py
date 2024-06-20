@@ -2,8 +2,10 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 import os
 import json
+import yaml
 from .models import TemporaryFile, Graph, GraphDB
 from converter.src import chipollino_funcs, formats_generator
+from django.conf import settings
 
 def index(request):
     if not request.session.session_key:
@@ -155,6 +157,14 @@ def get_random_object(request, object_type):
         if object_type in ['MFA', 'NFA']:
             res = f"get{object_type} "
         return HttpResponse(res)
+
+
+
+def load_yaml_data(request):
+    yaml_file_path = settings.CONFIG_DIR / 'config.yaml'
+    with open(yaml_file_path, 'r') as file:
+        data = yaml.safe_load(file)
+    return HttpResponse(json.dumps(data))
 
 
 from django.contrib.sessions.models import Session

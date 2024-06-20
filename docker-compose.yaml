@@ -5,7 +5,7 @@ services:
       - db:/db
     restart: unless-stopped
     environment:
-      - DJANGO_DEBUG=1
+      - DJANGO_DEBUG=0
       - DJANGO_DB=/db/db.sqlite3
       - CHIPOLLINO_BINARY=build/apps/InterpreterApp/InterpreterApp
       - CHIPOLLINO_GENERATOR_BINARY=build/apps/InputGeneratorApp/InputGeneratorApp

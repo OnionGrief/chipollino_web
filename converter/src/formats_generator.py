@@ -24,7 +24,6 @@ def map_format_list():
     return formats
 
 def dot_to_svg(dot_source):
-    print(dot_source)
     svg_txt = graphviz.Source(dot_source).pipe(format='svg').decode('utf-8')
     return re.sub(r'width="[^"]*" height="[^"]*"' , 'width="100%"', svg_txt)
 def svg_graphviz(g: Graph):

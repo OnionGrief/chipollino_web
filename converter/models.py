@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
 import json
+import re
 
 # fs = FileSystemStorage(location='Chipollino/report.pdf')
 
@@ -30,8 +31,17 @@ class Graph():
         self.name = name
         self.id = id
         self.type = type
+        # TODO:
+        for e in edges:
+            if type == "NFA":
+                assert(len(e["label"]) == 1)
+            if type == "MFA":
+                pass
+                # assert(len(e["label"]["symb"]) == 1)
     def to_GraphDB(self):
         return GraphDB(nodes=json.dumps(list(self.nodes)), edges=json.dumps(self.edges), name=self.name, type=self.type)
+    def parse_mfa_label(string: str):
+        return string
 
 
 class GraphDB(models.Model):
@@ -48,7 +58,7 @@ class GraphDB(models.Model):
         choices=TYPE_CHOICES,
         default='NFA',
     )
-    # temporary_file = models.OneToOneField(TemporaryFile, on_delete=models.CASCADE, null=True)   
+    # temporary_file = models.OneToOneField(TemporaryFile, on_delete=models.CASCADE, null=True)
     def __str__(self):
         return f'{self.name} {self.session_key}'
         return f'nodes: {self.nodes}\nedges:{self.edges}'
@@ -58,4 +68,12 @@ class GraphDB(models.Model):
         self.nodes = json.dumps(list(g.nodes))
         self.edges = json.dumps(g.edges)
         self.type = g.type
+
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from django.contrib.sessions.models import Session
+
+@receiver(pre_delete, sender=Session)
+def delete_books_with_session(sender, instance, **kwargs):
+    GraphDB.objects.filter(session_key=instance.session_key).delete()
 

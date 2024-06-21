@@ -20,18 +20,32 @@ def index(request):
 def run_interpreter(request):
     session_key = request.session.session_key
     if request.method == 'POST':
-        text = request.POST['input-txt']
-        running_res, rendered_tex, ok, graph_list = chipollino_funcs.run_interpreter(text, session_key)
-        request.session['rendered_tex'] = rendered_tex
-        if ok:
-            tex_file = running_res
-            result_list = chipollino_funcs.parse_tex(tex_file, graph_list, session_key = session_key)
-            return render(request, 'converter/result.html', {'success': True, 'test': text, 'texresult': tex_file, 'rendered_tex': repr(rendered_tex), 'result_list': result_list})
-        else:
-            if running_res:
-                return render(request, 'converter/result.html', {'test': running_res})
+        try:
+            text = request.POST['input-txt']
+            prev_text = text
+            for g in GraphDB.objects.filter(session_key=session_key):
+                g_name = g.name
+                user_path = 'Chipollino/' + session_key
+                if not os.path.exists(user_path):
+                    os.mkdir(user_path)
+                with open(f'{user_path}/{g_name}.txt', 'w', encoding='utf-8') as f:
+                    f.write(formats_generator.to_dsl(g.to_Graph()))
+                text = f'{g_name} = "{session_key}/{g_name}.txt"\n' + text
+
+            running_res, rendered_tex, ok, graph_list = chipollino_funcs.run_interpreter(text, session_key)
+            request.session['rendered_tex'] = rendered_tex
+            if ok:
+                tex_file = running_res
+                result_list = chipollino_funcs.parse_tex(tex_file, graph_list, session_key = session_key)
+                return render(request, 'converter/result.html', {'success': True, 'test': prev_text, 'texresult': tex_file, 'rendered_tex': repr(rendered_tex), 'result_list': result_list})
             else:
-                return render(request, 'converter/result.html', {'test': "Converter error"})
+                if running_res:
+                    return render(request, 'converter/result.html', {'test': running_res})
+                else:
+                    return render(request, 'converter/result.html', {'test': "Converter error"})
+        except Exception:
+            return render(request, 'converter/result.html', {'test': "Converter error"})
+
 
 def get_pdf(request):
     pdf_file = chipollino_funcs.get_pdf(request.session.session_key, request.session["rendered_tex"])

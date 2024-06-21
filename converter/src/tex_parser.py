@@ -49,8 +49,14 @@ def remove_substring_until_none(string, substring):
 def derender_regexpstr(text):
     text = text.replace("\\\\", "        ")
     text = text.replace("\\%", "%")
+    text = text.replace("\\&", "&")
     text = text.replace("\\{", "{")
     text = text.replace("\\}", "}")
+    # TODO: very fast hardcode (исправлю на адекватное считывание \def и \newcommand из head.tex)
+    # а еще текста между $$ и всяких \begin \end для mathmode
+    text = text.replace("\\First", "First")
+    text = text.replace("\\Last", "Last")
+    text = text.replace("\\Follow", "Follow")
     text = re.sub(r'\\empt', 'ε', text)
     text = re.sub(r'eps', 'ε', text)
     text = re.sub(r'\\hspace\*?{[^}]*}', "", text)

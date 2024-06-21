@@ -142,7 +142,7 @@ def to_gexf(graph: Graph):
 def from_dsl(text):
     nodes, edges = {}, []
     text = text.strip()
-    text = text.replace('eps','ε')
+    text = text.replace('eps', 'ε')
     type = "NFA"
     def parse_nodes(nlist):
         for line in [l for l in nlist.splitlines() if l and not l.isspace()]:

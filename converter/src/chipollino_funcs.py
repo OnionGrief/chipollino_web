@@ -11,7 +11,7 @@ def run_interpreter(text, session_key="0"):
     user_path = 'Chipollino/' + session_key
     if not os.path.exists(user_path):
         os.mkdir(user_path)
-    with open(f'Chipollino/{session_key}/test.txt', 'w', encoding='utf-8') as f:
+    with open(f'{user_path}/test.txt', 'w', encoding='utf-8') as f:
         f.write(text)
     try:
         subprocess.run(f"{env.CHIPOLLINO_BINARY} {session_key}/test.txt {session_key}", check=True, shell=True, capture_output=True, text=True, timeout=5*60, cwd='Chipollino')

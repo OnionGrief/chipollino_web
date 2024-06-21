@@ -127,6 +127,7 @@ function addEdge() {
         label = prompt('Enter edge label');
         if (label == null || label == "")
             return;
+        label = label.replace('eps', 'ε');
         lockGraph();
         cy.add({
             group: 'edges',

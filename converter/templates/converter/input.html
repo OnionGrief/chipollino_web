@@ -8,7 +8,9 @@
     <div id="input-right-panel">
         <select>
             <option value="" disabled selected>Function</option>
-            <option value="func1">func 1</option>
+            {% for func in func_list %}
+            <option value="{{func.name}}">{{func.name}}: {{func.arguments}} -> {{func.return_type}}</option>
+            {% endfor %}
         </select>
         <div style="display: flex; flex-direction: column;">
             <div id="generator-selector">

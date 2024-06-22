@@ -14,7 +14,8 @@ def index(request):
     format_list = formats_generator.get_format_list()
     graphs = GraphDB.objects.filter(session_key=request.session.session_key)
     graphs = [g.to_Graph() for g in graphs]
-    return render(request, 'converter/index.html', {'format_list': format_list, 'graph_list': graphs})
+    return render(request, 'converter/index.html', 
+                {'format_list': format_list, 'graph_list': graphs, 'func_list': load_yaml_data()["functions"]})
 
 
 def run_interpreter(request):
@@ -174,11 +175,11 @@ def get_random_object(request, object_type):
 
 
 
-def load_yaml_data(request):
+def load_yaml_data():
     yaml_file_path = settings.CONFIG_DIR / 'config.yaml'
     with open(yaml_file_path, 'r') as file:
         data = yaml.safe_load(file)
-    return HttpResponse(json.dumps(data))
+    return data
 
 
 from django.contrib.sessions.models import Session

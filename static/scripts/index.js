@@ -32,14 +32,15 @@ generatorSelector.forEach(gen_obj => {
     });
 });
 
-/*const testGenerator = document.getElementById('randomtest');
+const testGenerator = document.getElementById('randomtest');
 testGenerator.addEventListener('click', (event) => {
     fetch('/generator/' + 'Test')
         .then(response => response.text())
         .then(data => {
             document.getElementById('input-txt').value = data;
+            document.getElementById('testgenerator_result').textContent = "Test generated";
         });
-});*/
+});
 
 
 var automaton_content = document.getElementById('automaton-content');

@@ -12,7 +12,7 @@
             <option value="{{func.name}}">{{func.name}}: {{func.arguments}} -> {{func.return_type}}</option>
             {% endfor %}
         </select>
-        <div style="display: flex; flex-direction: column;">
+        <div class="generator_block">
             <div id="generator-selector">
                 <button id="gen_arg">Generate argument</button>
                 <div id="args_list">
@@ -22,8 +22,11 @@
                     <div class="gen_object" id="MFA">MFA</div> -->
                 </div>
             </div>
-            <p id="generator_result">&nbsp;</p>
+            <pre id="generator_result">&nbsp;</pre>
         </div>
-        <!-- <button id="randomtest">Generate test</button> -->
+        <div class="generator_block"></div>
+        <button id="randomtest">Generate test</button>
+        <pre id="testgenerator_result">&nbsp;</pre>
+    </div>
     </div>
 </div>

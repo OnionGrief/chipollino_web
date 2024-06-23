@@ -32,7 +32,7 @@ const graph_settings = [{
             'curve-style': 'bezier',
             'label': 'data(label)',
             'font-size': '10px',
-            'text-rotation': 'autorotate',
+            // 'text-rotation': 'autorotate',
             'text-margin-y': -10,
             'color': '#000',
             'loop-direction': '0deg',
@@ -179,6 +179,10 @@ function get_cy_view(json_data) {
 
     // Обработчик выбора узлов
     cy.on('tap', 'node', function (event) {
+        if (selectedElement && selectedElement.isEdge()) {
+            selectedElement.style('line-color', 'black');
+            selectedElement.style('target-arrow-color', 'black');
+        }
         var node = event.target;
         if (node.id() == dummyId)
             return;
@@ -199,9 +203,15 @@ function get_cy_view(json_data) {
     });
 
     cy.on('tap', 'edge', function (event) {
+        if (selectedElement) {
+            selectedElement.style('line-color', 'black');
+            selectedElement.style('target-arrow-color', 'black');
+        }
         if (event.target.source().id() == dummyId)
             return;
         selectedElement = event.target;
+        selectedElement.style('line-color', '#ae665e');
+        selectedElement.style('target-arrow-color', '#ae665e');
     });
 }
 

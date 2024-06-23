@@ -1,6 +1,6 @@
 #input-txt {
     width: 100%;
-    height: 300px;
+    height: 200px;
     font-size: larger;
     padding: 10px;
     border-radius: 8px;
@@ -11,9 +11,8 @@
     flex-direction: column;
     padding: 30px;
     /* justify-content: space-evenly; */
-    justify-content: space-around;
+    justify-content: center;
 }
-
 
 #gen_arg {
     cursor: pointer;
@@ -42,4 +41,16 @@
 
 .gen_object:hover {
     background-color: #f1f1f1;
+}
+
+.generator_block {    
+    margin-block-start: 40px;
+    display: flex; 
+    flex-direction: column;
+}
+
+.generator_block pre {
+    margin: 0;
+    margin-block-start: 10px;
+    white-space: pre;
 }

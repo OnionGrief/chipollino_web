@@ -34,7 +34,8 @@ class Graph():
         # TODO:
         for e in edges:
             if type == "NFA":
-                assert(len(e["label"]) == 1)
+                pass
+                # assert(len(e["label"]) == 1)
             if type == "MFA":
                 pass
                 # assert(len(e["label"]["symb"]) == 1)

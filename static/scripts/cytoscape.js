@@ -44,6 +44,7 @@ const graph_settings = [{
 
 const layout_settings = {
     name: 'breadthfirst',
+    roots: '#dummy',
     directed: true,
     spacingFactor: 1,
     transform: function (node, position) {

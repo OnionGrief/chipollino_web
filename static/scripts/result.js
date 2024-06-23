@@ -93,7 +93,7 @@ automata.forEach(element => {
             graph_name = prompt("Enter graph's name:", '');
             if (!graph_name)
                 return;
-            if (!isValidFilename(g_name))
+            if (!isValidFilename(graph_name))
                 return;
 
             dsl_content = "";

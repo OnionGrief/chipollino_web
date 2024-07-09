@@ -65,7 +65,7 @@
 <script src="{% static 'scripts/result.js' %}"></script>
 <script>
     document.getElementById("tex-content")
-    document.getElementById("tex2-download").href = 
+    document.getElementById("tex2-download").href =
         "data:application/tex;charset=utf-8," + encodeURIComponent({{rendered_tex | safe}});
 </script>
 

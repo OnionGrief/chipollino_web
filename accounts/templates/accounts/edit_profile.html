@@ -1,0 +1,32 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h2>Edit Profile</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="id_username">Username:</label>
+            <input type="text" name="username" value="{{ form.username.value|default_if_none:'' }}" required id="id_username">
+            {% for error in form.username.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div>
+            <label for="id_password1">Change Password:</label>
+            <input type="password" name="password1" id="id_password1">
+            {% for error in form.password1.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div>
+            <label for="id_password2">Confirm Password:</label>
+            <input type="password" name="password2" id="id_password2">
+            {% for error in form.password2.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit">Save changes</button>
+    </form>
+{% endblock %}

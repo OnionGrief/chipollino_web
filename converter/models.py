@@ -49,6 +49,7 @@ class GraphDB(models.Model):
     nodes = models.JSONField(default=list)
     edges = models.JSONField(default=list)
     session_key = models.CharField(max_length=40, null=True)
+    username = models.CharField(max_length=100, null=True)
     name = models.CharField(max_length=255, null=True)
     TYPE_CHOICES = [
         ('NFA', 'NFA'),
@@ -75,6 +76,6 @@ from django.dispatch import receiver
 from django.contrib.sessions.models import Session
 
 @receiver(pre_delete, sender=Session)
-def delete_books_with_session(sender, instance, **kwargs):
+def delete_graph_with_session(sender, instance, **kwargs):
     GraphDB.objects.filter(session_key=instance.session_key).delete()
 

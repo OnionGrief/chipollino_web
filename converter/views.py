@@ -79,8 +79,8 @@ def get_graph(request, graph_id):
 def get_graph_format(request, graph_id, format_name):
     if request.method == 'GET':
         try:
-            gDB = get_object_or_404(GraphDB, id=graph_id)
-            g = gDB.to_Graph()
+            g_db = get_object_or_404(GraphDB, id=graph_id)
+            g = g_db.to_Graph()
             format_list = formats_generator.map_format_list()
             res = format_list[format_name]['to'](g)
             return JsonResponse({'text': res, 'editable': format_list[format_name]['editable'], 
@@ -150,11 +150,11 @@ def save_graph(request, graph_id):
             format_list = formats_generator.map_format_list()
             assert(format_list[graph_format]['editable'])
             graph_content = req_body.get('content', '')
-            gDB = get_object_or_404(GraphDB, id=graph_id)
+            g_db = get_object_or_404(GraphDB, id=graph_id)
             g = format_list[graph_format]['from'](graph_content)
-            gDB.update_from(g)
-            gDB.save()
-            return HttpResponse(f"Saved graph {gDB.name}")
+            g_db.update_from(g)
+            g_db.save()
+            return HttpResponse(f"Saved graph {g_db.name}")
         except Exception:
             return HttpResponse("Can't save graph", status=404)
 

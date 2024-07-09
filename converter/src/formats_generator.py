@@ -219,13 +219,13 @@ def from_dot(dot_graph):
     assert(graph.get_graph_type() == "digraph")
     nodes, edges = {}, []
     
-    dummyId = ""
+    dummy_id = ""
     count_dummy = 0
     count_start = 0
     for node in graph.get_nodes():
         id = node.get_name()
         if node.get_shape() == "none":
-            dummyId = id
+            dummy_id = id
             count_dummy += 1
         elif id != "node":
             label = (node.get_label() if node.get_label() else id).replace('"', '')
@@ -236,7 +236,7 @@ def from_dot(dot_graph):
 
     for edge in graph.get_edges():
         source, target = edge.get_source(), edge.get_destination()
-        if source == dummyId:
+        if source == dummy_id:
             count_start += 1
             nodes[target]["is_init"] = True
         else:
@@ -244,7 +244,7 @@ def from_dot(dot_graph):
             label = edge.get_label().replace('"', '')
             edges.append({"source": source, "target": target, "label": label})
         for n in [source, target]:
-            if n not in nodes and n != dummyId:
+            if n not in nodes and n != dummy_id:
                 nodes[n] = {"id": n, "label": n, "is_double": False, "is_init": False}
     assert(count_start == 1)
     return Graph(nodes=nodes.values(), edges=edges)

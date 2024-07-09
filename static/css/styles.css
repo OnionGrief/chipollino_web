@@ -7,10 +7,6 @@
     padding: 10px 20px;
 }
 
-.site-title h3 {
-    margin: 0;
-}
-
 .header-nav ul {
     list-style-type: none;
     margin: 0;
@@ -24,11 +20,15 @@
     align-items: center;
 }
 
-.header-nav a {
+.header-container a {
     display: contents;
     color: #6c6c6c;
     text-decoration: none;
     font-size: 16px;
+}
+
+.site-title h3 {
+    margin: 0;
 }
 
 .header-nav a:hover {
@@ -96,4 +96,22 @@
 .copy-button img {
     width: 100%;
     height: 100%;
+}
+
+.a-button {
+    display: inline-block;
+    padding: 5px;
+    width: 120px;
+    margin-block-end: 10px;
+    color: #6c6c6c;
+    background-color: #e6e6e6;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.a-button:hover {
+    background-color: #c1c1c1; /* Фоновый цвет кнопки при наведении */
 }

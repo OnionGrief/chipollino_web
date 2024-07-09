@@ -6,13 +6,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/onion.png' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     {% block head %}{% endblock %}
     <title>{% block title %}{% endblock %}</title>
 </head>
 
 <body>
     <header>
-        <h1>Chipollino</h1>
+        <div class="header-container">
+            <div class="site-title">
+                <h3>Chipollino — Formal Languages Converter</h3>
+            </div>
+            <nav class="header-nav">
+                <ul>
+                    <li>
+                        <a href="https://github.com/OnionGrief/Chipollino" target="_blank">
+                            <img src="{% static 'images/git_icon.png' %}" alt="GitHub" class="github-icon">
+                            GitHub
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}">Account</a></li>
+                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                        <li><a href="{% url 'signup' %}">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
     </header>
     <main>
         {% block content %}

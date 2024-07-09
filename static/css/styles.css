@@ -1,3 +1,48 @@
+.header-container {
+    background-color: #e6e6e6; /* Цвет полосы */
+    color: #6c6c6c;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.site-title h3 {
+    margin: 0;
+}
+
+.header-nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.header-nav li {
+    display: flex;
+    align-items: center;
+}
+
+.header-nav a {
+    display: contents;
+    color: #6c6c6c;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.header-nav a:hover {
+    text-decoration: underline;
+}
+
+.github-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+
 .large_text {
     font-size: x-large;
 }

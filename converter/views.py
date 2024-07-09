@@ -12,7 +12,11 @@ def index(request):
         request.session.create()
 
     format_list = formats_generator.get_format_list()
-    graphs = GraphDB.objects.filter(session_key=request.session.session_key)
+    graphs = []
+    if request.user.is_authenticated:
+        graphs = GraphDB.objects.filter(username=request.user.username)
+    else:
+        graphs = GraphDB.objects.filter(session_key=request.session.session_key)
     graphs = [g.to_Graph() for g in graphs]
     return render(request, 'converter/index.html', 
                 {'format_list': format_list, 'graph_list': graphs, 'func_list': load_yaml_data()["functions"]})
@@ -123,9 +127,16 @@ def add_graph(request):
             req_body = json.loads(request.body)
             graph_name = req_body.get('name', '0')
             dsl_content = req_body.get('dsl_content', '')
-            GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name).delete()
+            if request.user.is_authenticated:
+                GraphDB.objects.filter(username=request.user.username, name=graph_name).delete()
+            else:
+                GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name).delete()
             g = formats_generator.from_dsl(dsl_content).to_GraphDB()
-            g.session_key = request.session.session_key
+            if request.user.is_authenticated:
+                g.username = request.user.username
+            else:
+                g.session_key = request.session.session_key
+            
             g.name = graph_name
             g.save()
             return HttpResponse(f"Saved graph {graph_name}")
@@ -136,10 +147,15 @@ def create_graph(request):
     if request.method == 'POST':
         try:
             graph_name = json.loads(request.body).get('name', '0')
-            if len(GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name)) > 0:
+            if request.user.is_authenticated and len(GraphDB.objects.filter(username=request.user.username, name=graph_name)) > 0:
+                return HttpResponse(f"Name {graph_name} already exists", status=404)
+            elif len(GraphDB.objects.filter(session_key=request.session.session_key, name=graph_name)) > 0:
                 return HttpResponse(f"Name {graph_name} already exists", status=404)
             g = Graph([{"id": 0, "label": "S", "is_init": True, "is_double": False}], [], graph_name).to_GraphDB()
-            g.session_key = request.session.session_key
+            if request.user.is_authenticated:
+                g.username = request.user.username
+            else:
+                g.session_key = request.session.session_key
             g.save()
             return JsonResponse({"id": g.id})
         except Exception:
@@ -220,4 +236,3 @@ def delete_graphs(request):
             count += deleted_count
     return HttpResponse(f"deleted {count} graphs")
 
-    

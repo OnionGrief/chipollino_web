@@ -148,7 +148,7 @@ function on_graph_name_click(event) {
             console.error(`Error getting graph ${g_id} :`, error);
         });
 }
-const graph_list = document.querySelectorAll('.graph_name')
+var graph_list = document.querySelectorAll('.graph_name')
 var prev_g_name = null;
 graph_list.forEach(g_name => {
     g_name.onclick = on_graph_name_click;
@@ -175,9 +175,11 @@ document.getElementById('add-button').addEventListener('click', (event) => {
             new_elem.className = 'graph_name';
             new_elem.innerText = g_name;
             new_elem.dataset.value = data.id;
+            curentGraphId = data.id;
             document.getElementById("ul_graph_list").appendChild(new_elem);
             new_elem.onclick = on_graph_name_click;
             new_elem.click();
+            graph_list.push(new_elem);
             showAlert(`Graph ${g_name} added`);
         })
         .catch(error => {

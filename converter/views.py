@@ -17,6 +17,9 @@ def index(request):
     return render(request, 'converter/index.html', 
                 {'format_list': format_list, 'graph_list': graphs, 'func_list': load_yaml_data()["functions"]})
 
+def help_page(request):
+    return render(request, 'converter/help.html')
+
 
 def run_interpreter(request):
     session_key = request.session.session_key

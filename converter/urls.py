@@ -20,4 +20,5 @@ urlpatterns = [
     path('delete_graphs/', views.delete_graphs, name='delete_graphs'),
     # path('delete_files/', views.delete_files, name='delete_files'),
     path('load_yaml_data/', views.load_yaml_data, name='load_yaml_data'),
+    path('help/', views.help_page, name='help'),
 ]

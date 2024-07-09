@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     {% block head %}{% endblock %}
     <title>{% block title %}{% endblock %}</title>
+    <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js"></script>
 </head>
 
 <body>
@@ -25,6 +26,12 @@
                             GitHub
                         </a>
                     </li>
+                    <div class="help-link">
+                        <a href="{% url 'converter:help' %}">
+                            <i class="fas fa-question-circle" style="margin-right: 5px;"></i>
+                            Help
+                        </a>
+                    </div>
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}">Account</a></li>
                         <li><a href="{% url 'logout' %}">Logout</a></li>

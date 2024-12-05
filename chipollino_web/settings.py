@@ -27,9 +27,9 @@ SECRET_KEY = "django-insecure-w2w*9q7o1@e@)vn#wa5c0lio28*lztdfx9zv39t9m@w&*#9elt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.DJANGO_DEBUG
 
-ALLOWED_HOSTS = [ "chipollino.flygrounder.ru", "localhost" ]
+ALLOWED_HOSTS = [ "chipollino.flygrounder.dev", "localhost" ]
 
-CSRF_TRUSTED_ORIGINS = ['https://chipollino.flygrounder.ru']
+CSRF_TRUSTED_ORIGINS = ['https://chipollino.flygrounder.dev']
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 

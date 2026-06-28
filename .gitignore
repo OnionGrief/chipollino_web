@@ -6,3 +6,7 @@ db.sqlite3
 tmp/
 отчет/
 collected_static/
+config/
+Chipollino/
+result
+result-*

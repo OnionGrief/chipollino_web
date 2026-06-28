@@ -1,7 +1,0 @@
-Django
-graphviz
-latex2mathml
-gunicorn
-dot2tex
-pydot
-pyyaml

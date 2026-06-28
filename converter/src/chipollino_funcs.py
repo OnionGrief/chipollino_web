@@ -48,11 +48,21 @@ def get_pdf(session_key="0", rendered_tex=""):
     try:
         with open(f'{dir_path}/rendered_report.tex', 'w', encoding='utf-8') as f:
             f.write(rendered_tex)
-        
-        subprocess.run(f"pdflatex rendered_report.tex", check=True, shell=True, capture_output=True, text=True, timeout=2*60, cwd=dir_path)
 
-        # file_in_db, _ = TemporaryFile.objects.get_or_create(path=file_path, session_key=session_key)
-        # file_in_db.save()
+        # pdflatex может вернуть ненулевой код из-за предупреждений/ошибок в шаблоне,
+        # но при этом всё равно записать PDF. Проверяем наличие файла, а не exit code.
+        res = subprocess.run(
+            f"pdflatex -interaction=nonstopmode rendered_report.tex",
+            check=False, shell=True, capture_output=True, text=True,
+            timeout=2*60, cwd=dir_path
+        )
+
+        if not os.path.exists(file_path):
+            print("pdflatex did not produce PDF:")
+            print(res.stdout)
+            print(res.stderr)
+            shutil.rmtree(dir_path)
+            return None
 
         with open(file_path, 'rb') as pdf_file:
             pdf_binary = pdf_file.read()
@@ -60,7 +70,8 @@ def get_pdf(session_key="0", rendered_tex=""):
         return pdf_binary
     except Exception as e:
         print(e)
-        shutil.rmtree(dir_path)
+        if os.path.exists(dir_path):
+            shutil.rmtree(dir_path)
         return None
 
 def parse_tex(text, graph_list, session_key = "0"):
@@ -86,7 +97,7 @@ def create_tex_svg(text, session_key="0"):
         with open(f'{folder_name}/{file_name}.tex', 'w', encoding='utf-8') as f:
             f.write(tex_str)
         # print('rendering graph image..')
-        subprocess.run(f'latex {file_name}.tex', check=True, shell=True, capture_output=True, timeout=2*60, cwd=folder_name)
+        subprocess.run(f'latex -interaction=nonstopmode {file_name}.tex', check=True, shell=True, capture_output=True, timeout=2*60, cwd=folder_name)
         subprocess.run(f'dvisvgm --no-fonts {file_name}.dvi', check=True, shell=True, capture_output=True, timeout=1*60, cwd=folder_name)
         
         with open(f'{folder_name}/{file_name}.svg', 'r', encoding='utf-8') as svg_file:

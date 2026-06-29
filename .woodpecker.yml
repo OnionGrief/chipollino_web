@@ -1,11 +1,7 @@
 ---
 steps:
   - name: build-and-run
-    image: nixos/nix
-    entrypoint:
-      - /run/current-system/sw/bin/bash
-      - -c
-      - echo $CI_SCRIPT | base64 -d | /run/current-system/sw/bin/bash -e
+    image: ghcr.io/cachix/devenv/devenv:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /nix/var/nix/daemon-socket/socket:/nix/var/nix/daemon-socket/socket
@@ -17,12 +13,11 @@ steps:
       PATH: /run/current-system/sw/bin:/usr/bin:/bin
       NIX_PATH: nixpkgs=/nixpkgs
     commands:
-      - nix-shell -p docker --run "
-          nix-build docker.nix --max-jobs 1 --cores 1
-          && docker load < result/app
-          && docker load < result/caddy
-          && docker compose -p chipollino_web up -d
-        "
+      - devenv container build app
+      - devenv container copy app
+      - devenv container build caddy
+      - devenv container copy caddy
+      - nix-shell -p docker --run "docker compose -p chipollino_web up -d"
     when:
       branch:
         - main

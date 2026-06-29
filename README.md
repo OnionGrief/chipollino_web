@@ -1,17 +1,21 @@
 # Chipollino web
 
 ### Инструкция запуска:
-В репозитории есть Nix-окружение (`shell.nix`) и сборка Docker-образа (`docker.nix`).
+В репозитории используется [devenv](https://devenv.sh): окружение для разработки и сборка Docker-образов описаны в `devenv.nix`, а все внешние зависимости закреплены в `devenv.yaml`.
 
 Для разработки:
-- `nix-shell`
+- `devenv shell`
 - `python manage.py migrate`
 - `python manage.py runserver`
 
+Или одной командой через process-compose:
+- `devenv up`
+
 Для сборки Docker-образов:
-- `nix-build docker.nix`
-- `docker load < result/app`
-- `docker load < result/caddy`
+- `devenv container build app`
+- `devenv container copy app`
+- `devenv container build caddy`
+- `devenv container copy caddy`
 
 Запуск через compose с собранными образами:
 `docker compose up -d`

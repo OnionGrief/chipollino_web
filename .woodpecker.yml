@@ -1,6 +1,6 @@
 ---
 steps:
-  - name: build-and-run
+  - name: build
     image: ghcr.io/cachix/devenv/devenv:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -17,7 +17,18 @@ steps:
       - devenv container copy app
       - devenv container build caddy
       - devenv container copy caddy
-      - nix-shell -p docker --run "docker compose -p chipollino_web up -d"
+    when:
+      branch:
+        - main
+      event:
+        - push
+
+  - name: run
+    image: docker:dind
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - docker compose -p chipollino_web up -d
     when:
       branch:
         - main

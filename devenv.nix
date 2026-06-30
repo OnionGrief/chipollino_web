@@ -1,4 +1,10 @@
-{ pkgs, lib, config, inputs, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  inputs,
+  ...
+}:
 
 let
   refal5 = pkgs.stdenv.mkDerivation {
@@ -127,38 +133,34 @@ let
   '';
 in
 {
-  packages = [
-    pythonEnv
-    pkgs.graphviz
-    tex
-    refal5
-    chipollino
+  stdenv = pkgs.stdenvNoCC;
 
-    # dev tools
-    pkgs.cmake
-    pkgs.gnumake
-    pkgs.gcc
-    pkgs.git
-    pkgs.unzip
-    pkgs.wget
-    pkgs.curl
-  ];
+  packages = if config.container.isBuilding then [] else (
+    [
+      pythonEnv
+      tex
+      refal5
+      chipollino
+    ]
+    ++ (with pkgs; [
+      graphviz
+      cmake
+      gnumake
+      gcc
+      git
+      unzip
+      wget
+      curl
+    ])
+  );
 
-  env = {
+  env = if config.container.isBuilding then {} else {
     DJANGO_DEBUG = "1";
     CHIPOLLINO_BINARY = "${chipollino}/build/apps/InterpreterApp/InterpreterApp";
     CHIPOLLINO_GENERATOR_BINARY = "${chipollino}/build/apps/InputGeneratorApp/InputGeneratorApp";
-  } // lib.optionalAttrs config.container.isBuilding {
-    # Marker used by enterShell to skip dev-only setup inside containers.
-    DEVENV_CONTAINER_MODE = "1";
   };
 
-  enterShell = ''
-    # Skip dev-environment setup when running inside a production container.
-    if [ "$DEVENV_CONTAINER_MODE" = "1" ]; then
-      return 0
-    fi
-
+  enterShell = if config.container.isBuilding then "" else ''
     export PATH="${refal5}/bin:$PATH"
 
     if [ ! -f config/config.yaml ]; then
@@ -238,5 +240,14 @@ in
         }
       ];
     };
+  };
+
+  scripts = {
+    buildContainers.exec = ''
+      devenv container build app
+      devenv container build caddy
+      devenv container copy app
+      devenv container copy caddy
+      '';
   };
 }

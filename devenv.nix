@@ -1,6 +1,5 @@
 {
   pkgs,
-  lib,
   config,
   inputs,
   ...
@@ -135,46 +134,58 @@ in
 {
   stdenv = pkgs.stdenvNoCC;
 
-  packages = if config.container.isBuilding then [] else (
-    [
-      pythonEnv
-      tex
-      refal5
-      chipollino
-    ]
-    ++ (with pkgs; [
-      graphviz
-      cmake
-      gnumake
-      gcc
-      git
-      unzip
-      wget
-      curl
-    ])
-  );
+  packages =
+    if config.container.isBuilding then
+      [ ]
+    else
+      (
+        [
+          pythonEnv
+          tex
+          refal5
+          chipollino
+        ]
+        ++ (with pkgs; [
+          graphviz
+          cmake
+          gnumake
+          gcc
+          git
+          unzip
+          wget
+          curl
+        ])
+      );
 
-  env = if config.container.isBuilding then {} else {
-    DJANGO_DEBUG = "1";
-    CHIPOLLINO_BINARY = "${chipollino}/build/apps/InterpreterApp/InterpreterApp";
-    CHIPOLLINO_GENERATOR_BINARY = "${chipollino}/build/apps/InputGeneratorApp/InputGeneratorApp";
-  };
+  env =
+    if config.container.isBuilding then
+      { }
+    else
+      {
+        DJANGO_DEBUG = "1";
+        CHIPOLLINO_BINARY = "${chipollino}/build/apps/InterpreterApp/InterpreterApp";
+        CHIPOLLINO_GENERATOR_BINARY = "${chipollino}/build/apps/InputGeneratorApp/InputGeneratorApp";
+      };
 
-  enterShell = if config.container.isBuilding then "" else ''
-    export PATH="${refal5}/bin:$PATH"
+  enterShell =
+    if config.container.isBuilding then
+      ""
+    else
+      ''
+        export PATH="${refal5}/bin:$PATH"
 
-    if [ ! -f config/config.yaml ]; then
-      mkdir -p config
-      cp --no-preserve=mode ${inputs.chipollino-config}/config.yaml config/config.yaml
-      echo "Copied config.yaml from Automatic-Chipollino-Update to config/config.yaml"
-    fi
+        if [ ! -f config/config.yaml ]; then
+          mkdir -p config
+          cp --no-preserve=mode ${inputs.chipollino-config}/config.yaml config/config.yaml
+          echo "Copied config.yaml from Automatic-Chipollino-Update to config/config.yaml"
+        fi
 
-    if [ ! -d Chipollino ]; then
-      cp -r ${chipollino} Chipollino
-      chmod -R u+w Chipollino
-      echo "Copied Chipollino to ./Chipollino"
-    fi
-  '';
+        if [ ! -d Chipollino ]; then
+          cp -r ${chipollino} Chipollino
+          chmod -R u+w Chipollino
+          echo "Copied Chipollino to ./Chipollino"
+        fi
+      '';
 
   tasks = {
     "app:migrate".exec = "python manage.py migrate";
@@ -201,14 +212,15 @@ in
               name = "chipollino-web-runtime";
               paths = [
                 pythonEnv
-                pkgs.graphviz
                 tex
                 refal5
                 chipollino
-                pkgs.bash
-                pkgs.coreutils
-              ];
-              ignoreCollisions = true;
+              ]
+              ++ (with pkgs; [
+                graphviz
+                bash
+                coreutils
+              ]);
             })
           ];
         }
@@ -248,6 +260,6 @@ in
       devenv container build caddy
       devenv container copy app
       devenv container copy caddy
-      '';
+    '';
   };
 }

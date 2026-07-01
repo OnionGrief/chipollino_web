@@ -1,0 +1,28 @@
+inputs:
+  nixpkgs:
+    url: github:NixOS/nixpkgs/89570f24e97e614aa34aa9ab1c927b6578a43775
+
+  chipollino:
+    url: github:OnionGrief/Chipollino/cdcaf86cc03b0e8c7415ba95a6704ddd2bcdd40d
+    flake: false
+
+  chipollino-config:
+    url: github:OnionGrief/Automatic-Chipollino-Update/1e3d5715918eb90fb8c82e366a995b165d90c8b6
+    flake: false
+
+  lexy:
+    url: tarball+https://lexy.foonathan.net/download/lexy-src.zip
+    flake: false
+
+  refal5-src:
+    url: tarball+http://www.botik.ru/pub/local/scp/refal5/ref5_081222.zip
+    flake: false
+
+  nix2container:
+    url: github:nlewo/nix2container
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
+
+  mk-shell-bin:
+    url: github:rrbutani/nix-mk-shell-bin

@@ -9,4 +9,4 @@
 - `buildContainers`
 
 Запуск через compose с собранными образами:
-`docker compose up -d`
+- `docker compose up -d`

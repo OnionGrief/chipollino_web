@@ -6,34 +6,14 @@
 }:
 
 let
-  refal5 = pkgs.stdenv.mkDerivation {
-    pname = "refal5";
-    version = "081222";
-
-    src = inputs.refal5-src;
-
-    nativeBuildInputs = [ pkgs.unzip ];
-
-    buildPhase = ''
-      make -f makefile.lin C_FLAGS="-c -DFOR_OS_LINUX -Wall -funsigned-char -std=gnu89"
-    '';
-
-    enableParallelBuilding = false;
-
-    installPhase = ''
-      mkdir -p $out/bin
-      cp refc refgo reftr $out/bin/
-    '';
-  };
-
   chipollino = pkgs.stdenv.mkDerivation {
     pname = "chipollino";
     version = "0.1.0";
     src = inputs.chipollino;
 
-    nativeBuildInputs = [
-      pkgs.cmake
-      pkgs.gnumake
+    nativeBuildInputs = with pkgs; [
+      cmake
+      gnumake
       refal5
     ];
 
@@ -55,7 +35,7 @@ let
 
       pushd refal
       chmod +x compile.sh
-      PATH="${refal5}/bin:$PATH" ./compile.sh
+      PATH="${pkgs.refal5}/bin:$PATH" ./compile.sh
       popd
     '';
 
@@ -103,7 +83,7 @@ let
 
   appEntrypoint = pkgs.writeShellScript "chipollino-web-entrypoint" ''
     set -e
-    export PATH="${pythonEnv}/bin:${refal5}/bin:/bin"
+    export PATH="${pythonEnv}/bin:${pkgs.refal5}/bin:/bin"
     export DJANGO_DEBUG="0"
     cd /app
     python manage.py migrate
@@ -134,6 +114,8 @@ in
 {
   stdenv = pkgs.stdenvNoCC;
 
+  overlays = [ inputs.refal5-flake.overlays.default ];
+
   packages =
     if config.container.isBuilding then
       [ ]
@@ -142,10 +124,10 @@ in
         [
           pythonEnv
           tex
-          refal5
           chipollino
         ]
         ++ (with pkgs; [
+          refal5
           graphviz
           cmake
           gnumake
@@ -172,7 +154,7 @@ in
       ""
     else
       ''
-        export PATH="${refal5}/bin:$PATH"
+        export PATH="${pkgs.refal5}/bin:$PATH"
 
         if [ ! -f config/config.yaml ]; then
           mkdir -p config
@@ -213,10 +195,10 @@ in
               paths = [
                 pythonEnv
                 tex
-                refal5
                 chipollino
               ]
               ++ (with pkgs; [
+                refal5
                 graphviz
                 bash
                 coreutils

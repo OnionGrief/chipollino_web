@@ -18,6 +18,12 @@ inputs:
     url: tarball+http://www.botik.ru/pub/local/scp/refal5/ref5_081222.zip
     flake: false
 
+  refal5-flake:
+    url: git+https://git.flygrounder.ru/flygrounder/refal5-flake
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
+
   nix2container:
     url: github:nlewo/nix2container
     inputs:

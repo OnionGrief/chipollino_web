@@ -149,19 +149,6 @@
         "url": "http://www.botik.ru/pub/local/scp/refal5/ref5_081222.zip"
       }
     },
-    "refal5-src_2": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1232203418,
-        "narHash": "sha256-zoAvKkLrJKBWPvZdvufAZosD7sLK+wRW4DtrYlRD+FU=",
-        "type": "tarball",
-        "url": "http://www.botik.ru/pub/local/scp/refal5/ref5_081222.zip"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "http://www.botik.ru/pub/local/scp/refal5/ref5_081222.zip"
-      }
-    },
     "root": {
       "inputs": {
         "chipollino": "chipollino",
@@ -171,8 +158,7 @@
         "mk-shell-bin": "mk-shell-bin",
         "nix2container": "nix2container",
         "nixpkgs": "nixpkgs",
-        "refal5-flake": "refal5-flake",
-        "refal5-src": "refal5-src_2"
+        "refal5-flake": "refal5-flake"
       }
     }
   },

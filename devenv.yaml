@@ -14,10 +14,6 @@ inputs:
     url: tarball+https://lexy.foonathan.net/download/lexy-src.zip
     flake: false
 
-  refal5-src:
-    url: tarball+http://www.botik.ru/pub/local/scp/refal5/ref5_081222.zip
-    flake: false
-
   refal5-flake:
     url: git+https://git.flygrounder.ru/flygrounder/refal5-flake
     inputs:

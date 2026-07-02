@@ -1,6 +1,6 @@
 inputs:
   nixpkgs:
-    url: github:NixOS/nixpkgs/89570f24e97e614aa34aa9ab1c927b6578a43775
+    url: github:cachix/devenv-nixpkgs/rolling
 
   chipollino:
     url: github:OnionGrief/Chipollino/cdcaf86cc03b0e8c7415ba95a6704ddd2bcdd40d
